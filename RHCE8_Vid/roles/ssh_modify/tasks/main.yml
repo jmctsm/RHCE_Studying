@@ -1,0 +1,20 @@
+---
+# tasks file for ssh_modify
+  - name: verifying variables to crete config
+    block:
+      - name: creating SSHD config using template
+        template:
+          src: templates/sshd_config.j2
+          dest: /etc/ssh/sshd_config
+          owner: root
+          group: root
+          mode: 0600
+      - name: restart SSH
+        service: 
+          name: sshd
+          state: restarted
+          enabled: yes
+    when: 
+      - SSH_PORT is defined
+      - PERMIT_ROOT is defined
+      - ALLOWED_USERS is defined

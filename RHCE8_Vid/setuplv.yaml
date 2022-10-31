@@ -1,0 +1,20 @@
+---
+  - name: setup lvm
+    hosts: all
+    vars:
+      ansible_port: 2022
+    tasks:
+      - name: no vgdata
+        fail:
+          msg: vgdata does not exist
+        when: ansible_facts['lvm']['vgs']['vgdata'] is not defined
+      - name: insufficient size
+        fail:
+          msg: insufficient size
+        when: ansible_facts['lvm']['vgs']['vgdata']['size_g'] < "2"
+      - name: create logical volume
+        lvol:
+          vg: vgdata
+          lv: lvdata
+          size: 2000m
+          state: present

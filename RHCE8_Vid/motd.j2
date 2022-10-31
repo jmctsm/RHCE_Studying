@@ -1,0 +1,18 @@
+{{ ansible_managed }}
+
+Welcome to server {{ ansible_facts['hostname'] }}
+
+System Memory: {{ ansible_facts['memory_mb']['real']['total'] }} MB
+
+Processor Count: {{ ansible_facts['processor_count'] }}
+
+Primary Disk Size: {{ ansible_facts['devices']['sda']['size'] }}
+
+{% if ansible_facts['devices']['sdb'] is defined %}
+Secondary Disk Size: {{ ansible_facts['devices']['sdb']['size'] }} 
+{% else %}
+Secondary Disk Size: NOT AVAILABLE
+{% endif %}
+
+
+

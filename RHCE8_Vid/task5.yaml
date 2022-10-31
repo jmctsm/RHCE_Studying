@@ -1,0 +1,18 @@
+---
+  - name: task 5 managing file content
+    hosts: all
+    tasks:
+      - name: create /etc/hosts from template
+        template:
+          src: etc_hosts.j2
+          dest: /etc/hosts
+          owner: root
+          group: root
+          mode: 0644
+      - name: cat hosts file
+        shell:
+          cmd: cat /etc/hosts
+        register: hosts_file
+      - name: show hosts file
+        debug:
+          var: hosts_file

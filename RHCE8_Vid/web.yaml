@@ -1,0 +1,5 @@
+---
+  - name: configure server and clients
+    import_playbook: webservers.yaml
+  - name: import client playbook
+    import_playbook: webclients.yaml

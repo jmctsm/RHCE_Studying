@@ -1,0 +1,1 @@
+This is how I solved the Sander Van Vugt Video practice exam.  It was confusing on the lesson for vhosts but I did what I could.

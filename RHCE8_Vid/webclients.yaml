@@ -1,0 +1,11 @@
+---
+  - name: setup web clients
+    hosts: webclients
+    vars: 
+      ansible_port: 2022
+    tasks:
+      - name: install client packages
+        yum:
+          name:
+            - curl
+            - wget

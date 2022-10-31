@@ -1,0 +1,39 @@
+---
+  - name: task 6 working with roles
+    hosts: all
+    vars: 
+      - SSH_PORT: 2022
+      - PERMIT_ROOT: "YES"
+      - ALLOWED_USERS: ansible
+    tasks:
+      - name: install selinux tools
+        yum:
+          name: policycoreutils-python-utils
+          state: latest
+      - name: Make sure that family is RedHat
+        block:
+          - name: make sure that SELINUX is in enforcing state
+            selinux:
+              state: enforcing
+              policy: targeted
+          - name: add SELINUX context for the port
+            shell:
+              cmd: semanage port -a -t ssh_port_t -p tcp {{ SSH_PORT }}
+            ignore_errors: true
+          - name: open a firewall port
+            firewalld:
+              port: "{{ SSH_PORT }}/tcp"
+              permanent: yes
+              immediate: yes
+              state: enabled
+          - name: called the role 
+            include_role: 
+              name: ssh_modify
+          - name: set new SSH port
+            set_fact:
+              ansible_port: "{{ SSH_PORT }}"
+          - name: gather facts again
+            setup:
+          - name: make sure can ping
+            ping: 
+        when: ansible_facts['distribution'] == "RedHat"          

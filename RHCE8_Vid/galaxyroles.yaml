@@ -1,0 +1,27 @@
+---
+  - name: install galaxy roles locally
+    hosts: localhost
+    become: no
+    tasks:
+      - name: install galaxy roles locally
+        shell: 
+          cmd: ansible-galaxy install -r requirements.yaml
+      - name: show installed
+        shell:
+          cmd: ansible-galaxy list
+        register: roles_installed
+      - name: show installed with debug
+        debug:
+          var: roles_installed
+
+  - name: install redis and nginx on ansible4
+    vars:
+      ansible_port: 2022
+    hosts: ansible4.example.com
+    tasks:
+      - name: include roles
+        include_role:
+          name: "{{ item }}"
+        loop:
+          - geerlingguy.nginx
+          - geerlingguy.redis

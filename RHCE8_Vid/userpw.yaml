@@ -1,0 +1,20 @@
+---
+  - name: create user with encrypted password
+    vars_files:
+      - vault_file.yaml
+    vars: 
+      ansible_port: 2022
+    hosts: all
+    tasks:
+      - name: create user
+        user:
+          name: lisa
+          password: "{{ vault_password }}"
+      - name: get id of lisa
+        shell:
+          cmd: id lisa
+        register: lisa_id
+      - name: show id of lisa
+        debug: 
+          var: lisa_id
+

@@ -1,0 +1,14 @@
+---
+  - name: task 8 motd file
+    hosts: all
+    vars: 
+      ansible_port: 2022
+    tasks:
+      - name: create motd using template
+        template:
+          src: motd.j2
+          dest: /etc/motd
+          owner: root
+          group: root
+          mode: 0644
+

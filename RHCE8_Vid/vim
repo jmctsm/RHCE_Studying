@@ -1,0 +1,3 @@
+---
+  - name: install roles from Galaxy locally
+    hosts: localhost

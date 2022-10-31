@@ -1,0 +1,37 @@
+---
+  - name: task 11
+    hosts: ansible1.example.com
+    vars: 
+      ansible_port: 2022
+    tasks:
+      - name: crate 1GB partition on sdb
+        parted:
+          device: /dev/sdb
+          number: 1
+          state: present
+          part_end: 1GiB
+          flags: [ lvm ]
+  - name: create 3 GIB partitation on ansible3
+    hosts: ansible3.example.com
+    vars: 
+      ansible_port: 2022
+    tasks:
+      - name: create 3 giB partition on sdb
+        parted:
+          device: /dev/sdb
+          number: 1
+          state: present
+          part_end: 3GiB
+          flags: [ lvm ]
+
+  - name: create VG on all hosts with /dev/sdb
+    hosts: all
+    vars:
+      ansible_port: 2022
+    tasks:
+      - name: creat vg only if sdb is on the device
+        lvg:
+          vg: vgdata
+          pvs: /dev/sdb1
+          state: present
+        when: ansible_facts['devices']['sdb'] is defined
