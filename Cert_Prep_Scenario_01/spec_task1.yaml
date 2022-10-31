@@ -1,0 +1,26 @@
+---
+  - name: Install on all servers
+    hosts: dev,prod,test
+    tasks:
+      - name: install wireshark and nmap
+        yum: 
+          name: 
+            - wireshark
+            - nmap
+          state: latest
+ 
+  - name: install Virtualization Host on prod
+    hosts: prod
+    tasks:
+      - name: install virtulizatio host
+        yum: 
+          name: "@Virtualization Host"
+          state: latest
+
+  - name: update prod servers
+    hosts: prod
+    tasks:
+      - name: update prod servers
+        yum: 
+          name: '*'
+          state: latest

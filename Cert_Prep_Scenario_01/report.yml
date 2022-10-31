@@ -1,0 +1,56 @@
+---
+  - name: generate report locally
+    hosts: localhost
+    become: no
+    tasks: 
+      - name: make file
+        file: 
+          path: /home/ansible/hwtemplate.txt
+          owner: ansible
+          group: ansible
+          state: touch
+      - name: add contents to file
+        copy: 
+          content: "NAME= \nIPADDRESS= \nDISKS= \nSECOND_DISK_NAME= \n"
+          dest: /home/ansible/hwtemplate.txt
+
+  - name: fill in template on servers
+    hosts: all
+    vars: 
+      remote_file: /root/report.txt
+    tasks:
+      - name: copy file to /root/report.txt
+        copy: 
+          src: /home/ansible/hwtemplate.txt
+          dest: "{{ remote_file }}"
+
+      - name: modify name field
+        lineinfile: 
+          path: "{{ remote_file }}"
+          regexp: '^NAME'
+          line: "NAME={{ ansible_facts['nodename'] }}"
+      - name: modify IP ADDRESS field
+        lineinfile:
+          path: "{{ remote_file }}"
+          regexp: '^IPADDRESS='
+          line: "IPADDRESS= {{ ansible_facts['default_ipv4']['address'] }}"
+      - name: modify DISKS field
+        lineinfile:
+          path: "{{ remote_file }}"
+          regexp: '^DISKS='
+          line: "DISKS = {{ ansible_facts['devices'].keys() | list }}"
+      - name: make list of devices
+        set_fact: 
+          disk_list: "{{ ansible_facts['devices'].keys() | list }}"
+      - name: modify SECOND DISK NAME
+        lineinfile:
+          path: "{{ remote_file }}"
+          regexp: 'SECOND_DISK_NAME='
+          line: "SECOND_DISK_NAME= {{ ansible_facts['devices']['sdb']['host'] }} or {{ disk_list[1] }}"
+        when: ansible_facts['devices']['sdb'] is defined
+      - name: modify SECOND DISK NAME
+        lineinfile:
+          path: "{{ remote_file }}"
+          regexp: 'SECOND_DISK_NAME='
+          line: "SECOND_DISK_NAME= NONE or {{ disk_list[1] }}"
+        when: ansible_facts['devices']['sdb'] is not defined

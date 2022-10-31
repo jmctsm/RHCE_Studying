@@ -1,0 +1,46 @@
+---
+  - hosts: localhost
+    tasks:
+      - name: install chrony
+        yum: 
+          name: chrony
+          state: latest
+      - name: enable chrony
+        service: 
+          name: chronyd
+          state: started
+          enabled: yes
+      - name: allow clients to connect
+        lineinfile:
+          path: /etc/chrony.conf
+          line: allow 192.168.43.0/24
+          state: present
+      - name: restart chronyd
+        service: 
+          name: chronyd
+          state: restarted
+          enabled: yes
+
+
+  - hosts: all
+    vars:
+      timesync_ntp_servers:
+        - hostname: control.example.com
+          iburst: yes
+    roles:
+      - rhel-system-roles.timesync
+    tasks:
+      - name: run timedatectl
+        shell:
+          cmd: timedatectl
+        register: timedatevar
+      - set_fact: 
+          not_synced: "System clock synchronized: no"
+      - name: show message if not synchronized
+        fail: 
+          msg: time could not be synchronized
+        when: not_synced in timedatevar['stdout_lines']
+      - name: show message is synchronized
+        debug: 
+          msg: time is synchronized
+        when: not_synced not in timedatevar['stdout_lines']

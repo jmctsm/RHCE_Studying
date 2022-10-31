@@ -1,0 +1,24 @@
+---
+  - name: create LVM
+    hosts: all
+    tasks:
+      - name: fail on hosts with no second disk
+        fail: 
+          msg: no second disk available
+        when: ansible_facts['devices']['sdb'] is not defined
+      - name: create new partition
+        parted: 
+          device: /dev/sdb
+          number: 1
+          state: present
+      - name: create vg
+        lvg: 
+          vg: vgdata
+          pvs: /dev/sdb1
+          state: present
+      - name: create lvol
+        lvol:
+          vg: vgdata
+          lv: lvdata
+          size: 1g
+

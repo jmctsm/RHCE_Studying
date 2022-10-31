@@ -1,0 +1,38 @@
+---
+  - name: setup repo server
+    hosts: localhost
+    tasks:
+      - name: create the ISO image
+        shell:
+          cmd: dd if=/dev/sr0 of=/rhel8.iso bs=1M
+      - name: install vsftpd
+        yum:
+          name: vsftpd
+          state: latest
+      - name: allow anonymous login
+        lineinfile:
+          path: /etc/vsftpd/vsftpd.conf
+          regexp: '^anonymous_enable='
+          line: 'anonymous_enable=YES'
+          state: present
+      - name: disable firewalld
+        service:
+          name: firewalld
+          state: stopped
+          enabled: no
+      - name: enable ftp
+        service: 
+          name: vsftpd
+          state: started
+          enabled: yes
+      - name: make directory
+        file:
+          path: /var/ftp/repo
+          state: directory
+      - name: mount the disk to /var/ftp/repo
+        mount:
+          path: /var/ftp/repo
+          src: /rhel8.iso
+          fstype: iso9660
+          state: mounted
+          opts: loop,ro,context=system_u:object_r:public_content_t:s0

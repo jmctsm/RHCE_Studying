@@ -1,0 +1,34 @@
+---
+  - name: configure web server
+    hosts: prod
+    tasks:
+      - name: install web server
+        yum: 
+          name: httpd
+          state: latest
+      - name: start web server
+        service: 
+          name: httpd
+          state: started
+          enabled: yes
+      - name: open the firewall for thi
+        firewalld:
+          service: http
+          state: enabled
+          immediate: yes
+          permanent: yes
+      - name: create folder for webcontent
+        file: 
+          path: /webcontent
+          state: directory
+          setype: httpd_sys_content_t
+      - name: copy template to webcontent
+        template: 
+          src: index_html.j2
+          dest: /webcontent/index.html
+          setype: httpd_sys_content_t
+      - name: create sym link
+        file: 
+          src: /webcontent/index.html
+          dest: /var/www/html/index.html
+          state: link
