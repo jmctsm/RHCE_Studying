@@ -1,0 +1,37 @@
+---
+  - name: Exam C Common Task 2
+    hosts: localhost
+    tasks:
+      - name: make the iso image
+        shell:  
+          cmd: dd if=/dev/sr0 of=/rhel8.iso bs=1M
+      - name: disable firewalld
+        service:
+          name: firewalld
+          state: stopped
+          enabled: no
+      - name: install vsftpd
+        yum: 
+          name: vsftpd
+          state: latest
+      - name: allow anonymous access to ftp
+        lineinfile:
+          path: /etc/vsftpd/vsftpd.conf
+          regexp: '^anonymous_enable='
+          line: "anonymous_enable=YES"
+      - name: enable and start vsftpd
+        service:
+          name: vsftpd
+          state: started
+          enabled: yes
+      - name: make ftp directory
+        file:
+          path: /var/ftp/repo
+          state: directory
+      - name: mount iso to directory
+        mount: 
+          path: /var/ftp/repo
+          src: /rhel8.iso
+          fstype: iso9660
+          opts: loop,ro,context=system_u:object_r:public_content_t:s0
+          state: mounted

@@ -1,0 +1,13 @@
+---
+  - name: Exam C Task 3
+    hosts: all
+    tasks: 
+      - name: use template to make file /tmp/hosts
+        template: 
+          src: hosts.j2
+          dest: /tmp/hosts
+      - name: use template to make local file /tmp/hosts
+        template:
+          src: hosts.j2
+          dest: /tmp/hosts
+        delegate_to: localhost

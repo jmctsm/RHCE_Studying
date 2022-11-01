@@ -1,0 +1,10 @@
+---
+  - name: exam c task 6
+    hosts: all
+    vars:
+      timesync_ntp_servers:
+        - hostname: pool.ntp.org
+          pool: yes
+          iburst: yes
+    roles:
+      - rhel-system-roles.timesync

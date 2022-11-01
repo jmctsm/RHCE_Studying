@@ -1,0 +1,54 @@
+---
+  - name: Exam C task 1
+    hosts: all
+    vars: 
+      drive_list: []
+    tasks:
+      - name: make list of all drives
+        set_fact:
+          drive_list: "{{ ansible_facts['devices'].keys() | list }}"
+      - name: set primary line
+        set_fact:
+          primary_device: "primary device {{ item }}"
+        when:
+          - not item == "sr0"
+          - not item is search("dm")
+          - item is search("a")
+        loop: "{{ drive_list }}"
+      - name: set secondary line
+        set_fact:
+          secondary_device: "second device {{ item }}"
+        when: 
+          - not item =="sr0"
+          - not item is search("dm")
+          - item is search("b")
+        loop: "{{ drive_list }}"
+      - name: prepare undefined
+        set_fact: 
+          secondary_device: "no second device"
+        when: secondary_device is not defined
+      - name: print
+        debug: 
+          msg: "{{ primary_device }} {{ secondary_device }}"
+      - name: remove file on remote machine
+        file:
+          path: /tmp/devices.txt
+          state: absent
+      - name: remove file on local machine
+        file:
+          path: /tmp/devices.txt
+          state: absent
+        delegate_to: localhost
+      - name: append contents to remote machine
+        shell:
+          cmd: "echo {{ item }} found on {{ ansible_facts['hostname'] }} >> /tmp/devices.txt"
+        loop:
+          - "{{ primary_device }}"
+          - "{{ secondary_device }}"
+      - name: add primary contents to local machine
+        shell:
+          cmd: "echo {{ item }} found on {{ ansible_facts['hostname'] }} >> /tmp/devices.txt"
+        loop:
+          - "{{ primary_device }}"
+          - "{{ secondary_device }}"
+        delegate_to: localhost

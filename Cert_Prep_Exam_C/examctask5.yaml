@@ -1,0 +1,197 @@
+---
+  - name: Exam C task 5
+    hosts: all
+    tasks: 
+      - name: set selinux to permissive
+        selinux: 
+          policy: targeted
+          state: permissive
+        register: selinux_output
+      - name: reboot as needed
+        reboot:
+        when: selinux_output.changed
+      - name: install http
+        yum: 
+          name: httpd
+          state: latest
+      - name: set http port to 88
+        lineinfile:
+          regexp: '^Listen 80'
+          line: Listen 88
+          path: /etc/httpd/conf/httpd.conf
+      - name: install policycoreutils-python-utils
+        yum: 
+          name: policycoreutils-python-utils
+          state: latest
+      - name: start httpd
+        service: 
+          name: httpd
+          state: started
+          enabled: yes
+      - name: close the firewall for testing
+        firewalld:
+          port: 88/tcp
+          permanent: yes
+          immediate: yes
+          state: disabled
+
+  - name: test web servers
+    hosts: localhost
+    tasks: 
+      - name: get webpage
+        block: 
+          - name: get webpage ansible1
+            uri: 
+              url: "http://ansible1:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible1
+            when:
+              - uri_results.status == -1
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+      - name: get webpage ansible2
+        block: 
+          - name: get webpage
+            uri: 
+              url: "http://ansible2:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible2
+            when:
+              - uri_results.status == -1
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+      - name: get webpage ansible3
+        block: 
+          - name: get webpage
+            uri: 
+              url: "http://ansible3:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible3
+            when:
+              - uri_results.status == -1
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+ 
+      - name: get webpage ansible 4
+        block: 
+          - name: get webpage
+            uri: 
+              url: "http://ansible4:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible4
+            when:
+              - uri_results.status == -1  
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+ 
+         
+      - name: pause
+        pause: 
+
+  - name: change firewall to pass
+    hosts: all
+    tasks:
+      - name: change firewall
+        firewalld:
+          port: 88/tcp
+          permanent: yes
+          immediate: yes
+          state: enabled
+
+  - name: test web servers
+    hosts: localhost
+    tasks: 
+      - name: get webpage
+        block: 
+          - name: get webpage ansible1
+            uri: 
+              url: "http://ansible1:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible1
+            when:
+              - uri_results.status == -1
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+      - name: get webpage ansible2
+        block: 
+          - name: get webpage
+            uri: 
+              url: "http://ansible2:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible2
+            when:
+              - uri_results.status == -1
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+      - name: get webpage ansible3
+        block: 
+          - name: get webpage
+            uri: 
+              url: "http://ansible3:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible3
+            when:
+              - uri_results.status == -1  
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+ 
+      - name: get webpage ansible 4
+        block: 
+          - name: get webpage
+            uri: 
+              url: "http://ansible4:88"
+            register: uri_results
+            ignore_errors: yes
+          - name: fail when status not 200 and welcome not in reply
+            debug:
+              msg: Service could not be accessed on ansible4
+            when:
+              - uri_results.status == -1  
+          - name: show when works
+            debug:
+              msg: success
+            when: 
+              - uri_results.status == 403
+ 

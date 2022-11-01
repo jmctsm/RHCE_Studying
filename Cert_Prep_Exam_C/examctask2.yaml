@@ -1,0 +1,49 @@
+---
+  - name: Exam C Task 2
+    hosts: all
+    tasks:
+      - name: get device_list
+        set_fact: 
+          device_list: "{{ ansible_facts['devices'].keys() | list }}"
+      - name: fail when no second disk
+        fail:
+          msg: "no work to do"
+        when: not "sdb" in device_list
+      - name: get second disk name
+        set_fact:
+          second_drive: "{{ item }}"
+        when: 
+          - not item is search("sr0")
+          - not item is search("dm")
+          - not item is search("a")
+        loop: "{{ device_list }}"
+      - name: create partition
+        parted: 
+          device: "/dev/{{ second_drive }}"
+          number: 1
+          state: present
+          flags: [ lvm ]
+      - name: create vg
+        lvg: 
+          vg: vgfiles
+          pvs: /dev/{{ second_drive }}1
+          state: present
+      - name: create lv
+        lvol: 
+          vg: vgfiles
+          lv: lvfiles
+          size: 1g
+      - name: format lv
+        filesystem:
+          fstype: xfs
+          dev: /dev/mapper/vgfiles-lvfiles
+      - name: create directory to mount file system
+        file: 
+          path: /lvfiles
+          state: directory
+      - name: mount the filesystem
+        mount: 
+          path: /lvfiles
+          src: /dev/mapper/vgfiles-lvfiles
+          fstype: xfs
+          state: mounted
