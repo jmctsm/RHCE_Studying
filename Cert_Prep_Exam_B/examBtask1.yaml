@@ -1,0 +1,25 @@
+---
+  - name: Exam B Task 1
+    hosts: all
+    seial: 2
+    tasks: 
+      - name: install vsftpd
+        yum:  
+          name: vsftpd
+          state: latest
+      - name: start the ftp server
+        service: 
+          name: vsftpd
+          state: started
+          enabled: yes
+      - name: open the firewall for ftp
+        firewalld:
+          service: ftp
+          state: enabled
+          immediate: yes
+          permanent: yes
+      - name: make readme file
+        copy:
+          content: "welcome to the vsftpd service."
+          dest: /var/ftp/pub/README.txt
+

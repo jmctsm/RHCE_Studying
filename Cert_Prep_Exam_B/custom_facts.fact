@@ -1,0 +1,7 @@
+[packages]
+package1: samba
+package2: mariadb-server
+
+[services]
+service1: smb
+service2: mariadb

@@ -1,0 +1,24 @@
+---
+  - name: install packages based on custom_facts
+    hosts: all
+    serial: 2
+    tasks: 
+      - name: fail if no local facts
+        fail:
+          msg: no local facts
+        when: ansible_facts['ansible_local']['custom_facts'] is not defined
+      - name: install packages
+        yum: 
+          name: "{{ item }}"
+          state: latest
+        loop:
+          - "{{ ansible_facts['ansible_local']['custom_facts']['packages']['package1'] }}"
+          - "{{ ansible_facts['ansible_local']['custom_facts']['packages']['package2'] }}"
+      - name: enable the service
+        service: 
+          name: "{{ item }}"
+          state: started
+          enabled: yes
+        loop:
+          - "{{ ansible_facts['ansible_local']['custom_facts']['services']['service1'] }}"
+          - "{{ ansible_facts['ansible_local']['custom_facts']['services']['service2'] }}"

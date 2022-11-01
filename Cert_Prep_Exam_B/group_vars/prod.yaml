@@ -1,0 +1,4 @@
+---
+username: chantal
+groupname: students
+password: "{{ prod_enc_pass }}"

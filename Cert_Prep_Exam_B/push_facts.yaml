@@ -1,0 +1,19 @@
+---
+  - name: push custom facts to ansible 2
+    hosts: ansible2
+    serial: 2
+    tasks:
+      - name: make directory
+        file: 
+          path: /etc/ansible/facts.d/
+          state: directory
+      - name: copy facts to ansible2
+        copy: 
+          src: custom_facts.fact
+          dest: /etc/ansible/facts.d/
+      - name: get facts to make sure instaled
+        setup:
+      - name: show facts for custom facts
+        debug:
+          var: ansible_facts['ansible_local']
+

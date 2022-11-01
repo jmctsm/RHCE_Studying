@@ -1,0 +1,38 @@
+---
+  - name: Common Task 2
+    hosts: localhost
+    serial: 2
+    tasks: 
+      - name: create DD file
+        shell: 
+          cmd: dd if=/dev/sr0 of=/rhel8.iso bs=1M
+      - name: disable the firewall
+        service: 
+          name: firewalld
+          state: stopped
+          enabled: no
+      - name: install VSFTPD
+        yum: 
+          name: vsftpd
+          state: latest
+      - name: allow anonymous users
+        lineinfile: 
+          path: /etc/vsftpd/vsftpd.conf
+          regexp: '^anonymous_enable='
+          line: 'anonymous_enable=YES'
+      - name: start the service
+        service: 
+          name: vsftpd
+          state: started
+          enabled: yes
+      - name: create the directory
+        file: 
+          path: /var/ftp/repo
+          state: directory
+      - name: mount the iso file with selinux context
+        mount: 
+          path: /var/ftp/repo
+          src: /rhel8.iso
+          fstype: iso9660
+          opts: loop,ro,context=system_u:object_r:public_content_t:s0
+          state: mounted

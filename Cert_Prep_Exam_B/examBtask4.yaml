@@ -1,0 +1,32 @@
+---
+  - name: Exam B task 4
+    hosts: ansible3
+    serial: 2
+    tasks:
+      - name: change SELINUX to permissive
+        selinux:
+          policy: targeted
+          state: permissive
+        register: se_policy
+      - name: checking for change
+        debug: 
+          msg: no change was made
+        when: not se_policy.changed
+      - name: waiting and rebooting if changed
+        block: 
+          - name: pause 30 seconds to reboot server
+            pause: 
+              seconds: 30
+        
+          - name: reboot server
+            reboot:
+              test_command: whoami
+              msg: rebooting because selinux policy changed
+        when: se_policy.changed
+      - name: get selinux state
+        shell: 
+          cmd: getenforce
+        register: selinux_state
+      - name: show selinux state
+        debug: 
+          var: selinux_state['stdout']

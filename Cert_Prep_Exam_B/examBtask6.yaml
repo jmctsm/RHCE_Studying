@@ -1,0 +1,48 @@
+---
+  - name: create user
+    hosts: dev
+    serial: 2
+    vars_files:
+      - group_vars/pass_vault.yaml
+    tasks:
+      - name: create group {{ groupname }}
+        group: 
+          name: "{{ groupname }}"
+          state: present
+      - name: create user {{ username }}
+        user: 
+          name: "{{ username }}"
+          groups: "{{ groupname }}"
+          append: yes
+          password: "{{ password }}"
+      - name: get id of {{ username }}
+        shell:
+          cmd: id {{ username }}
+        register: id_output
+      - name: print id of {{ username }}
+        debug:
+          var: id_output.stdout
+
+  - name: create prod user
+    hosts: prod
+    vars_files:
+      - group_vars/pass_vault.yaml
+    serial: 2 
+    tasks:
+      - name: create group {{ groupname }} 
+        group:
+          name: "{{ groupname }}"
+          state: present
+      - name: create user {{ username }}
+        user:
+          name: "{{ username }}"
+          groups: "{{ groupname }}"
+          append: yes
+          password: "{{ password }}"   
+      - name: get id of {{ username }}
+        shell: 
+          cmd: id {{ username }}
+        register: id_output
+      - name: print id of {{ username }}
+        debug: 
+          var: id_output.stdout

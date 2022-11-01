@@ -1,0 +1,16 @@
+---
+  - name: Exam B task 3
+    hosts: all
+    serial: 2
+    tasks:
+      - name: create user lisa
+        user: 
+          name: lisa
+          password: "$6$mysecretsalt$UxXf96m7qWf4gFJuQUWygLlhUrikalIr1qiN7P0Vz3ILP2s1EdopPgostsusBpNxETNkjpIYpr4lfwih0HmvD."
+          groups: wheel
+          append: yes
+      - name: add lisa to sudoers
+        copy:
+          content: "lisa ALL=(ALL) ALL"
+          dest: /etc/sudoers.d/lisa
+          validate: visudo -cf %s

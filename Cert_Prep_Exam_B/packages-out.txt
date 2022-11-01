@@ -1,0 +1,81 @@
+            "mariadb-server": [
+                {
+                    "arch": "x86_64",
+                    "epoch": 3,
+                    "name": "mariadb-server",
+                    "release": "3.module+el8.3.0+8972+5e3224e9",
+                    "source": "rpm",
+                    "version": "10.3.27"
+                }
+            ],
+            "mariadb-server-utils": [
+                {
+                    "arch": "x86_64",
+                    "epoch": 3,
+                    "name": "mariadb-server-utils",
+                    "release": "3.module+el8.3.0+8972+5e3224e9",
+                    "source": "rpm",
+                    "version": "10.3.27"
+                }
+            ],
+--
+            "samba": [
+                {
+                    "arch": "x86_64",
+                    "epoch": 0,
+                    "name": "samba",
+                    "release": "3.el8",
+                    "source": "rpm",
+                    "version": "4.13.3"
+                }
+            ],
+            "samba-client-libs": [
+                {
+                    "arch": "x86_64",
+                    "epoch": 0,
+                    "name": "samba-client-libs",
+                    "release": "3.el8",
+                    "source": "rpm",
+                    "version": "4.13.3"
+                }
+            ],
+            "samba-common": [
+                {
+                    "arch": "noarch",
+                    "epoch": 0,
+                    "name": "samba-common",
+                    "release": "3.el8",
+                    "source": "rpm",
+                    "version": "4.13.3"
+                }
+            ],
+            "samba-common-libs": [
+                {
+                    "arch": "x86_64",
+                    "epoch": 0,
+                    "name": "samba-common-libs",
+                    "release": "3.el8",
+                    "source": "rpm",
+                    "version": "4.13.3"
+                }
+            ],
+            "samba-common-tools": [
+                {
+                    "arch": "x86_64",
+                    "epoch": 0,
+                    "name": "samba-common-tools",
+                    "release": "3.el8",
+                    "source": "rpm",
+                    "version": "4.13.3"
+                }
+            ],
+            "samba-libs": [
+                {
+                    "arch": "x86_64",
+                    "epoch": 0,
+                    "name": "samba-libs",
+                    "release": "3.el8",
+                    "source": "rpm",
+                    "version": "4.13.3"
+                }
+            ],
