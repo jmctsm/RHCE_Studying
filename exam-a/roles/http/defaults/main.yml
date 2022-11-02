@@ -1,0 +1,10 @@
+---
+# defaults file for http---
+web_client: curl
+web_server: httpd
+web_config_file: /etc/httpd/conf/httpd.conf
+web_dir: /web
+selinux_type: httpd_sys_content_t
+web_file: /web/index.html
+firewall_service: http
+

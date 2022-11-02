@@ -1,0 +1,32 @@
+--- 
+  - name: web server playbook
+    hosts: webservers
+    vars_files: 
+     - vars/all.yaml
+    tasks: 
+      - name: install {{ web_server }}
+        yum: 
+          name: "{{ web_server }}"
+          state: latest
+      - name: firewall enabling
+        firewalld: 
+          service: http
+          state: enabled
+          permanent: yes
+          immediate: yes
+      - name: start and enable server
+        service: 
+          name: "{{ web_server }}"
+          state: started
+          enabled: yes
+      - name: copy template config file
+        template:
+          src: templates/httpd.j2
+          dest: "{{ web_config_file }}"
+        notify: restart web server
+    handlers: 
+      - name: restart web server
+        service: 
+          name: "{{ web_server }}"
+          state: restarted
+          enabled: yes

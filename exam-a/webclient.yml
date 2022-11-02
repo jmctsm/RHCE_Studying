@@ -1,0 +1,10 @@
+---
+  - name: webclient playbook
+    hosts: webclients
+    vars_files: 
+      - vars/all.yaml
+    tasks: 
+      - name: install {{ web_client }}
+        yum: 
+          name: "{{ web_client }}"
+          state: latest

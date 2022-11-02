@@ -1,0 +1,70 @@
+---
+  - name: setup FTP/HTTP repo  server
+    hosts: localhost
+    tasks:
+      - name: create dd file for FTP
+        shell:
+          cmd: dd if=/dev/sr0 of=/rhel8_ftp.iso bs=1M
+      - name: create dd file for HTTP
+        shell: 
+          cmd: dd if=/dev/sr0 of=/rhel8_http.iso bs=1M
+      - name: install servers
+        yum: 
+          name: 
+            - vsftpd
+            - httpd
+          state: latest
+      - name: enable anonymous access to FTP
+        lineinfile: 
+          path: /etc/vsftpd/vsftpd.conf
+          regexp: '^anonymous_enable='
+          line: 'anonymous_enable=YES'
+      - name: change port for HTTP
+        lineinfile:
+          path: /etc/httpd/conf/httpd.conf
+          regexp: '^Listen '
+          line: Listen 8008
+      - name: enable FTP server
+        service: 
+          name: "{{ item }}"
+          state: started
+          enabled: yes
+        loop: 
+          - vsftpd
+          - httpd
+      - name: allow through the firewall
+        firewalld: 
+          service: "{{ item }}"
+          state: enabled
+          permanent: yes
+          immediate: yes
+        loop: 
+          - ftp
+          - http
+      - name: allow http port through 
+        firewalld: 
+          port: 8008/tcp
+          permanent: yes
+          immediate: yes
+          state: enabled
+      - name: create directories
+        file: 
+          path: "{{ item }}"
+          state: directory
+        loop: 
+          - /var/ftp/repo
+          - /var/www/html/repo
+      - name: mount the ftp iso
+        mount:
+          path: /var/ftp/repo
+          src: /rhel8_ftp.iso
+          fstype: iso9660
+          opts: loop,ro,context=system_u:object_r:public_content_t:s0
+          state: mounted
+      - name: mount the ftp iso
+        mount:
+          path: /var/www/html/repo
+          src: /rhel8_http.iso
+          fstype: iso9660
+          opts: loop,ro,context=system_u:object_r:public_content_t:s0
+          state: mounted

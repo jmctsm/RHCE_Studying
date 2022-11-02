@@ -1,0 +1,54 @@
+---
+# tasks file for http
+  - name: create the partition
+    parted: 
+      device: /dev/sdb
+      number: 1
+      label: gpt
+      state: present
+      part_type: primary
+      part_start: 1MiB
+  - name: make the filesystem as xfs
+    filesystem: 
+      fstype: xfs
+      dev: /dev/sdb1
+  - name: create the directory
+    file: 
+      path: "{{ web_dir }}"
+      state: directory
+  - name: mount the filesystem
+    mount: 
+      path: "{{ web_dir }}"
+      src: /dev/sdb1
+      fstype: xfs
+      state: mounted
+      opts: rw,context=system_u:object_r:{{ selinux_type }}:s0
+  - name: install {{ web_server }}
+    yum: 
+      name: "{{ web_server }}"
+      state: latest
+  - name: firewall enabling
+    firewalld: 
+      service: "{{ firewall_service }}"
+      state: enabled
+      permanent: yes
+      immediate: yes
+  - name: start and enable server
+    service: 
+      name: "{{ web_server }}"
+      state: started
+      enabled: yes
+  - name: copy template config file
+    template:
+      src: templates/httpd.j2
+      dest: "{{ web_config_file }}"
+    notify: restart web server
+  - name: touch the index.html
+    file: 
+      path: "{{ web_file }}"
+      state: touch
+  - name: add line to index.html
+    lineinfile:
+      path: "{{ web_file }}"
+      line: "Welcome to my custom web server {{ ansible_facts['hostname'] }}"
+      state: present

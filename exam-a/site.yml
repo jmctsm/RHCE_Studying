@@ -1,0 +1,5 @@
+---
+  - name: exam 1 task 2 webclient
+    import_playbook: webclient.yml
+  - name: exam 1 task 2 webserver
+    import_playbook: webserver.yml

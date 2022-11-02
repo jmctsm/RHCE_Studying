@@ -1,0 +1,5 @@
+---
+  - name: using role for Exam 1 Task 4
+    hosts: webservers
+    roles: 
+      - http
