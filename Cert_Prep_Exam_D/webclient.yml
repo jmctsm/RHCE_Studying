@@ -1,0 +1,11 @@
+---
+  - name: webclient install exam d task 1
+    hosts: webclients
+    vars_files:
+      - vars/examdtask1_vars.yaml
+    tasks: 
+      - name: install {{ web_client }}
+        yum: 
+          name: "{{ web_client }}"
+          state: latest
+

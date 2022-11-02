@@ -1,0 +1,36 @@
+---
+  - name: exam d task 1 webserver
+    hosts: webservers
+    vars_files: 
+      - vars/examdtask1_vars.yaml
+    tasks: 
+      - name: install {{ web_server }}
+        yum: 
+          name: "{{ web_server }}"
+          state: latest
+      - name: open a firewall port for {{ firewall_service }}
+        firewalld: 
+          service: "{{ firewall_service }}"
+          state: enabled
+          permanent: yes
+          immediate: yes
+      - name: start {{ web_server }}
+        service:
+          name: "{{ web_server }}"
+          state: started
+          enabled: yes
+      - name: deply config file to web servers
+        template: 
+          src: templates/httpd.j2
+          dest: "{{ web_config_file }}"
+          owner: root
+          group: root
+          mode: 0644
+        notify:
+          - restart web server
+    handlers:
+      - name: restart web server
+        service:
+          name: "{{ web_server }}"
+          state: restarted
+          enabled: yes

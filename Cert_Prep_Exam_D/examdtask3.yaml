@@ -1,0 +1,8 @@
+---
+  - name: exam d task 1 site.yaml for clients
+    import_playbook: webclient.yml
+  - name: exam d task 1 site.yaml for servers using a role
+    hosts: all
+    roles:
+      - http
+

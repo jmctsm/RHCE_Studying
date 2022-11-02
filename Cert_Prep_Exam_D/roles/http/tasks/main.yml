@@ -1,0 +1,73 @@
+---
+# tasks file for http
+  - name: make sure have facts
+    setup:
+  - name: get disk list
+    set_fact: 
+      disk_list: "{{ ansible_facts['devices'].keys() | list }}"
+  - name: find secondary
+    set_fact:
+      second_disk: "{{ item }}"
+    when: 
+      - not item is search("dm")
+      - not item is search("sr0")
+      - not item is search("a")
+    loop: "{{ disk_list }}"
+  - name: print failure for systems with no second disk
+    fail:
+      msg: no second disk available
+    when: second_disk is undefined
+  - name: create new directory
+    file: 
+      path: /web
+      state: directory
+  - name: create partition on second disk
+    parted: 
+      device: "/dev/{{ second_disk }}"
+      number: 1
+      state: present
+  - name: format filesystem on /dev/{{ second_disk }}1
+    filesystem: 
+      fstype: xfs
+      dev: /dev/{{ second_disk }}1
+  - name: mount new filesystem permanently
+    mount: 
+      path: /web
+      src: /dev/{{ second_disk }}1
+      fstype: xfs
+      state: mounted
+      opts: rw,context=system_u:object_r:{{ welinux_type }}:s0
+  - name: install {{ web_server }}
+    yum: 
+      name: "{{ web_server }}"
+      state: latest
+  - name: open a firewall port for {{ firewall_service }}
+    firewalld: 
+      service: "{{ firewall_service }}"
+      state: enabled
+      permanent: yes
+      immediate: yes
+  - name: start {{ web_server }}
+    service:
+      name: "{{ web_server }}"
+      state: started
+      enabled: yes
+  - name: deply config file to web servers
+    template: 
+      src: templates/httpd.j2
+      dest: "{{ web_config_file }}"
+      owner: root
+      group: root
+      mode: 0644
+    notify:
+      - restart web server
+  - name: make index on server
+    file: 
+      path: /web/index.html
+      state: touch
+  - name: add contents to file
+    lineinfile: 
+      path: /web/index.html
+      line: "Welcome to my custom web server {{ ansible_facts['hostname'] }}"
+      state: present
+    notify: restart web server

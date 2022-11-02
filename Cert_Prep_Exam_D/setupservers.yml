@@ -1,0 +1,37 @@
+---
+  - name: Exam D Common 1
+    hosts: localhost
+    tasks: 
+      - name: create image file
+        shell: 
+          cmd: dd if=/dev/sr0 of=/rhel8.iso
+      - name: disable firewalld
+        service:
+          name: firewalld
+          state: stopped
+          enabled: no
+      - name: install vsftpd
+        yum: 
+          name: vsftpd
+          state: latest
+      - name: allow anonymous enabled
+        lineinfile:
+          path: /etc/vsftpd/vsftpd.conf
+          regexp: '^anonymous_enable='
+          line: 'anonymous_enable=YES'
+      - name: start vsftpd
+        service: 
+          name: vsftpd
+          state: started
+          enabled: yes
+      - name: create directory
+        file: 
+          path: /var/ftp/repo
+          state: directory
+      - name: mount iso
+        mount: 
+          path: /var/ftp/repo
+          src: /rhel8.iso
+          fstype: iso9660
+          opts: loop,ro,context=system_u:object_r:public_content_t:s0
+          state: mounted

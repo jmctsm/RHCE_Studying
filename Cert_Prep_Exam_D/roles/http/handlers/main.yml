@@ -1,0 +1,7 @@
+---
+# handlers file for http
+  - name: restart web server
+    service:
+      name: "{{ web_server }}"
+      state: restarted
+      enabled: yes
