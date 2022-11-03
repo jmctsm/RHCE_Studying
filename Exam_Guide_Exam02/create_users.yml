@@ -1,0 +1,22 @@
+---
+  - name: create users for exam 2 task 7
+    hosts: prod
+    vars_files: 
+      - users_pass.yml
+    tasks: 
+      - name: create groups when department is profs
+        group:
+          name: "{{ item.department }}"
+          state: present
+        when: item.department == "profs"
+        loop: "{{ users }}"
+
+      - name: create users
+        user: 
+          name: "{{ item.name }}"
+          groups: "{{ item.department }}"
+          append: yes
+          password: "{{ item.password | password_hash('sha256', 'mysecretsalt') }}"
+        when: item.department == "profs"
+        loop: "{{ users }}"
+      

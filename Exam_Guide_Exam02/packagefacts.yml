@@ -1,0 +1,31 @@
+---
+- name: exam 2 task 3
+  hosts: all
+  tasks:
+    - name: gather package facts
+      package_facts:
+        manager: auto
+      register: packfacts
+
+    - name: show packfacts
+      debug:
+        msg: "{{ item }}={{ packfacts['ansible_facts']['packages'][item][0]['version'] }}"
+      loop:
+        - kernel
+        - bash
+        - glibc
+
+    - name: touch file to make
+      file: 
+        path: /root/packages.txt
+        state: touch
+    
+    - name: add package and version to packages.txt
+      lineinfile:
+        path: /root/packages.txt
+        line: "{{ item }}={{ packfacts['ansible_facts']['packages'][item][0]['version'] }}"
+        state: present
+      loop:
+        - kernel
+        - bash
+        - glibc

@@ -1,0 +1,13 @@
+---
+  - name: use custom role for exam b task 6
+    hosts: test
+    tasks: 
+      - name: is the firewall running
+        service: 
+          name: firewalld
+          state: started
+          enabled: yes
+
+      - name: use role created
+        import_role: 
+          name: /home/ansible/roles/configure_apache

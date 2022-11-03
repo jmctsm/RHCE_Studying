@@ -1,0 +1,39 @@
+---
+- name: exam 2 task 2
+  hosts: all
+  tasks:
+    - name: fail when no second storage
+      fail:
+        msg: no second storage device
+      when: ansible_facts['devices']['sdb'] is not defined
+
+    - name: create 5 GB partition on sdb
+      parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+        flags: [lvm]
+
+    - name: set up vgdata
+      lvg:
+        vg: vgdata
+        pvs: /dev/sdb1
+        pesize: 8M
+
+    - name: create lvdata
+      lvol:
+        vg: vgdata
+        lv: lvdata
+        size: 1g
+
+    - name: format lvdata
+      filesystem:
+        fstype: ext3
+        dev: /dev/mapper/vgdata-lvdata
+
+    - name: mount lvdata to /data
+      mount:
+        path: /data
+        src: /dev/mapper/vgdata-lvdata
+        state: mounted
+        fstype: ext3

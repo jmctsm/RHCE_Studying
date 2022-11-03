@@ -1,0 +1,6 @@
+---
+  - name: install using roles
+    hosts: all
+    roles:
+      - /home/ansible/roles/geerlingguy.nginx
+      - /home/ansible/roles/geerlingguy.docker

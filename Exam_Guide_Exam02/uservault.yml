@@ -1,0 +1,26 @@
+---
+- name: exam 2 task 4
+  hosts: all
+  vars_files:
+    - cloudpass.yml
+  vars: 
+    output_file: /root/cloudcreds.txt
+  tasks:
+    - name: touch file /root/cloudcreds.txt
+      file:
+        path: "{{ output_file }}"
+        state: touch
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: print first variable to file
+      lineinfile:
+         path: "{{ output_file }}"
+         line: CLOUDID={{ CLOUDID }}
+         state: present
+    - name: print second variable to file
+      lineinfile:
+        path: "{{ output_file }}"
+        line: CLOUDPASS={{ CLOUDPASS }}
+        state: present

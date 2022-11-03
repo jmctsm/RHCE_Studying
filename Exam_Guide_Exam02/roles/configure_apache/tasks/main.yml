@@ -1,0 +1,32 @@
+---
+# tasks file for configure_apache
+
+- name: make sure that nginx is turned off
+  service: 
+    name: nginx
+    state: stopped
+    enabled: no
+
+- name: install httpd
+  yum:
+    name: httpd
+    state: latest
+
+- name: start and enable httpd
+  service: 
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: use template to make index.html
+  template:
+    src: index_html.j2
+    dest: /var/www/html/index.html
+
+- name: enable the firewall
+  firewalld: 
+    service: http
+    state: enabled
+    permanent: yes
+    immediate: yes
+
