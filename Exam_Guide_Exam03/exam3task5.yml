@@ -1,0 +1,40 @@
+---
+  - name: setup control as time server
+    hosts: localhost
+    tasks: 
+      - name: set allow in chrony.conf
+        lineinfile:
+          line: "{{ item }}"
+          path: /etc/chrony.conf
+          state: present
+        loop:
+          - "allow all"
+          - "deny 192.168.43.104/24"
+      - name: restart chrony
+        service:
+          name: chronyd
+          state: restarted
+          enabled: yes
+      
+  - hosts: all
+    vars:
+      timesync_ntp_servers:
+        - hostname: control.example.com
+          pool: yes
+          iburst: yes
+    roles:
+      - rhel-system-roles.timesync
+
+  - name: check if synchronized or not
+    hosts: all
+    tasks: 
+      - name: get tmedatectl output
+        shell:
+          cmd: timedatectl
+        register: td_output
+      - fail: 
+          msg: Unfortunately time could not be synchronized
+        when: td_output.stdout is search("System clock synchronized.*no")
+      - debug:
+          msg: time is sync'd
+        when: td_output.stdout is search("System clock synchronized.*yes")

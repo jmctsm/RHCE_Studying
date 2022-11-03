@@ -1,0 +1,77 @@
+---
+  - name: exam 3 task 3
+    hosts: localhost
+    tasks: 
+      - name: remove file if there
+        file: 
+          path: /home/ansible/hwtemplate.txt
+          state: absent
+      - name: create file
+        file: 
+          path: /home/ansible/hwtemplate.txt
+          state: touch
+          owner: ansible
+          group: ansible
+          mode: '0600'
+
+      - name: add lines to template file
+        lineinfile: 
+          path: /home/ansible/hwtemplate.txt
+          line: "{{ item }}=\n"
+          state: present
+        loop: 
+          - NAME
+          - IPADDRESS
+          - TOTAL_MEMORY
+          - NIC_NAME
+          - SECOND_NIC_NAME
+
+  - name: fill in file on remote server
+    hosts: all
+    tasks: 
+      - name: copy file to server
+        copy: 
+          src: /home/ansible/hwtemplate.txt
+          dest: /root/report.txt
+          owner: root
+          group: root
+          mode: 0600
+      
+      - name: fill in info
+        block:
+          - name: fill in hostname
+            lineinfile: 
+              path: /root/report.txt
+              regexp: '^{{ item.line }}'
+              line: "{{ item.line }}{{ item.name }}"
+            loop: 
+              - name: "{{ ansible_facts['nodename'] }}"
+                line: NAME=
+              - name: "{{ ansible_facts['default_ipv4']['address'] }}"
+                line: IPADDRESS=
+              - name: "{{ ansible_facts['memtotal_mb'] }}"
+                line: TOTAL_MEMORY=
+          - name: set first_nic fact
+            set_fact:
+              nic_list: "{{ ansible_facts['interfaces'] | reject('search', 'lo') | list | sort }}"
+          - name: set first nic
+            set_fact:
+              first_nic: "{{ nic_list[0] }}"
+          - name: set if second nic
+            set_fact:
+              second_nic: "{{ nic_list[1] }}"
+            when: nic_list[1] is defined
+          - name: set second NIC to NONE if not defined
+            set_fact:
+              second_nic: "NONE"
+            when: second_nic is not defined
+          - name: add values to file
+            lineinfile:
+              path: /root/report.txt
+              regexp: "{{ item.line }}"
+              line: "{{ item.line }}{{ item.name }}"
+            loop:
+              - name: "{{ first_nic }}"
+                line: NIC_NAME=
+              - name: "{{ second_nic }}"
+                line: SECOND_NIC_NAME=

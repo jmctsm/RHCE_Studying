@@ -1,0 +1,34 @@
+---
+  - name: exam 3 task 6
+    hosts: prod
+    tasks: 
+      - name: install web server
+        yum: 
+          name: httpd
+          state: latest
+      - name: open firewalld
+        firewalld: 
+          state: enabled
+          service: http
+          permanent: yes
+          immediate: yes
+      - name: start web server
+        service: 
+          name: httpd
+          state: started
+          enabled: yes
+      - name: make remote directory
+        file: 
+          path: /webcontent
+          state: directory
+      - name: copy template file over
+        template:
+          src: templates/index_html.j2
+          dest: /webcontent/index.html
+          setype: httpd_sys_content_t
+      - name: create a symbolic link to /var/www/html/index.html
+        file: 
+          src: /webcontent/index.html
+          dest: /var/www/html/index.html
+          state: link
+

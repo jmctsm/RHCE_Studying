@@ -1,0 +1,59 @@
+---
+  - name: exam 3 task 2
+    hosts: prod,test
+    tasks: 
+      - name: fail if no second drive
+        fail: 
+          msg: no second drive
+        when: ansible_facts['devices']['sdb'] is not defined
+      - name: create partition on sdb for vgdata
+        parted: 
+          device: /dev/sdb
+          number: 1
+          state: present
+          part_end: 2GiB
+      - name: create partition on sdb for vgprod
+        parted: 
+          device: /dev/sdb
+          number: 2
+          state: present
+          part_start: 2GiB
+          part_end: 4GiB
+        when: ansible_facts['nodename'] in groups['prod']
+      - name: create partition for vgfail
+        parted:
+          device: /dev/sdb
+          number: 3
+          state: present
+          part_start: 4GiB
+          part_end: 4.5GiB
+        when: ansible_facts['nodename'] in groups['prod']
+      - name: create vgdata on all
+        lvg: 
+          vg: vgdata
+          pvs: /dev/sdb1
+      - name: create vgprod in prod
+        lvg: 
+          vg: vgprod
+          pvs: /dev/sdb2
+        when: ansible_facts['nodename'] in groups['prod']
+      - name: create vgfail on prod
+        lvg: 
+          vg: vgfail
+          pvs: /dev/sdb3
+        when: ansible_facts['hostname'] in groups['prod']
+      - name: create lvdata in prod
+        lvol: 
+          vg: vgdata
+          lv: lvdata
+          size: 1g
+      - name: get ansible_facts
+        setup:
+      - name: fail if no vgprod
+        fail: 
+          msg: vgprod does not exist
+        when: ansible_facts['lvm']['vgs']['vgprod'] is not defined
+      - name: fail if vgfail is less than 1 G
+        fail: 
+          msg: insufficient disk space availabe on vgfail
+        when: ansible_facts['lvm']['vgs']['vgfail']['size_g'] < "1"

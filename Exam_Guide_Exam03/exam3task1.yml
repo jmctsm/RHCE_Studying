@@ -1,0 +1,21 @@
+---
+  - name: exam 3 task 1
+    hosts: dev,prod,test
+    tasks: 
+      - name: install packages
+        yum: 
+          name: 
+            - perl
+            - php
+          state: latest
+
+      - name: install virtualization host on prod
+        yum: 
+          name: "@Virtualization Host"
+          state: latest
+        when: ansible_facts['nodename'] in groups['prod']
+
+      - name: update prod
+        yum: 
+          name: '*'
+          state: latest
