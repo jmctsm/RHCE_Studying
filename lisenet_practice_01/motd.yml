@@ -1,0 +1,11 @@
+---
+  - name: task 3 file content
+    hosts: all
+    become: yes
+    tasks: 
+      - name: copy template file over to /etc/motd.
+        template: 
+          src: motd.j2
+          force: yes
+          dest: /etc/motd
+          mode: 0644

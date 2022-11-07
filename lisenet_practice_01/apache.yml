@@ -1,0 +1,6 @@
+---
+  - name: task 10 create and work with roles (some more)
+    hosts: webservers
+    become: yes
+    roles: 
+      - sample-apache

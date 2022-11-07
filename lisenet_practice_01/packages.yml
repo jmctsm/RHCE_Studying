@@ -1,0 +1,19 @@
+---
+  - name: task 15 software packages
+    hosts: all
+    become: yes
+    tasks: 
+      - name: install packages for proxy
+        yum: 
+          name:
+            - tcpdump
+            - mailx
+          state: latest
+        when: ansible_facts['nodename'] in groups['proxy']
+      - name: install packages for database
+        yum:
+          name:
+            - lsof
+            - mailx
+          state: latest
+        when: ansible_facts['nodename'] in groups['database']

@@ -1,0 +1,14 @@
+---
+  - name: task 13 use conditionals to control play execution
+    hosts: all
+    become: yes
+    tasks:
+      - name: if less than 2048MB in ram fail
+        fail:
+          msg: Server memory is less than 2048MB
+        when: ansible_facts['memory_mb']['real']['total'] < 2048
+      - name: set parameter to 10
+        sysctl:
+          name: vm.swappiness
+          value: "10"
+          state: present

@@ -1,0 +1,12 @@
+---
+  - name: task 7 scheduled tasks
+    hosts: proxy
+    become: yes
+    tasks: 
+      - name: setup cron job
+        cron: 
+          name: "append date"
+          hour: "*"
+          minute: "0"
+          state: present
+          job: "echo $(date) >> /var/log/time.log"

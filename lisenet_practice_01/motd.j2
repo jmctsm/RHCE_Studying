@@ -1,0 +1,8 @@
+{% if ansible_facts['nodename'] in groups['proxy'] %}
+Welcome to the HAProxy server
+{% elif ansible_facts['nodename'] in groups['webservers'] %}
+Welcome to Apache server
+{% elif ansible_facts['nodename'] in groups['database'] %}
+Welcome to MySQL server
+{% else %}
+{% endif %}

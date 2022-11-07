@@ -1,0 +1,17 @@
+---
+  - name: Task 4 Configure SSH Server
+    hosts: all
+    become: True
+    tasks: 
+      - name: configure SSHD daemon
+        template: 
+          src: sshd_config.j2
+          dest: /etc/ssh/sshd_config
+          mode: 0600
+        notify: restart sshd
+    handlers: 
+      - name: restart sshd
+        service: 
+          name: sshd
+          state: restarted
+          enabled: yes

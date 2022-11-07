@@ -4,12 +4,14 @@ Servers needed
 	     1 for OS 2 blank
 	each MS needs three NICs
      set up SSH to allow root SSH
-     hostnames will be ansible1 to 6 for MS.  domain will be example.com
+     hostnames will be ansible1 to 6 for MS.  domain will be example.com to start with
+	setup ansible.cfg
+	setup control with a static file to so can ping short and long name
+	anytime an item is repeated in a playbook, variabilize it
 
 inventory
      setup inventory as file, web, ftp, even, and odd
-     odd uses password for sudo
-     even uses nopasswd
+     
 
 Control
      setup repo server
@@ -22,14 +24,20 @@ Managed Server setup
      	use FQDN
 	Base uses FTP
 	AppStream uses HTTP on a different port
-     setup py
+     setup python3
+	setup to be managed via ansible using adhoc commands in a shell script
 
+only allow 3 imstances to run and two hosts to finish in each playbook before starting new hosts
 
 Storage
   setup three vgs on MS
+       vgdata, vgfiles, vgstuff
   setup three lvols on MS
+		lvdata lvfiles lvstuff
   extend one lvols
+  mount lvs to /data, /files, /stuff
   use extents of 8, 16, 32
+  
   create swap space on non LVM and LVM space on 
 	non LVM on odd
 	LVM on even
@@ -85,6 +93,7 @@ setup local facts to use for systems
 	domain (jmctsm.local)
 	mariadb-server
 	mariadb needs to start
+	(when change the domain, make sure all static files are updated as well that are used for name resolution as well as any repos)
 	
 changed tuned profile
 

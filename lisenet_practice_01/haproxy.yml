@@ -1,0 +1,22 @@
+---
+  - name: task 11 download roles from ansible galaxy and use them
+    hosts: proxy
+    become: yes
+    vars: 
+      haproxy_backend_mode: 'http'
+      haproxy_backend_balance_method: 'roundrobin'
+      haproxy_backend_httpchk: 'HEAD / HTTP/1.1\r\nHost:localhost'
+      haproxy_backend_servers: 
+        - name: ansible3.hl.com
+          address: 192.168.43.203:80
+        - name: ansible4.hl.com
+          address: 192.168.43.204:80
+    pre_tasks: 
+      - name: configure firewall
+        firewalld:
+          port: 80/tcp
+          permanent: yes
+          immediate: yes
+          state: enabled
+    roles:
+      - geerlingguy.haproxy

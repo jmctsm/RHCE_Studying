@@ -1,0 +1,3 @@
+---
+# defaults file for sample-apache
+IPV4ADDRESS: "{{ ansible_facts['default_ipv4']['address'] }}"

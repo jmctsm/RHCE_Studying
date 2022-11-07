@@ -1,0 +1,23 @@
+---
+  - name: task 17 services
+    hosts: webservers
+    become: yes
+    vars: 
+      dt_file: /etc/systemd/system/default.target
+      mu_file: /usr/lib/systemd/system/multi-user.target
+    tasks:
+      - name: create symlink for multi-user
+        file: 
+          src: "{{ mu_file }}"
+          dest: "{{ dt_file }}"
+          state: link
+      - name: reboot servers
+        reboot: 
+          test_command: whoami
+      - name: get ls of symlink
+        shell: 
+          cmd: ls -l {{ dt_file }}
+        register: ls_output
+      - name: print output of symlink
+        debug:
+          var: ls_output

@@ -1,0 +1,23 @@
+---
+  - name: task 14 use archiving
+    hosts: database
+    become: yes
+    vars:
+      directory: /mnt/mysql_backups
+      file: database_list.txt
+      archive: archive.gz
+    tasks: 
+      - name: create file
+        copy: 
+          content: dev,test,qa,prod
+          dest: "{{ directory }}/{{ file }}"
+      - name: archive the file
+        shell:
+          cmd: tar cvzf {{ directory }}/{{ archive }} {{ directory }}/{{ file }}
+      - name: list archive contents
+        shell: 
+          cmd: tar tvzf {{ directory }}/{{ archive }}
+        register: tar_output
+      - name: show output
+        debug: 
+          var: tar_output

@@ -1,0 +1,138 @@
+---
+  - name: task 6 users and groups webservers
+    hosts: webservers
+    become: yes
+    vars_files: 
+      - vars/user_list.yml
+      - secret.yml
+    tasks: 
+      - name: create groups
+        group: 
+          name: "{{ item.username }}"
+          state: present
+        when:
+          - item.uid > 1000
+          - item.uid < 2000
+        loop: "{{ users }}"
+      - name: create users
+        user:
+          name: "{{ item.username }}"
+          uid: "{{ item.uid }}"
+          group: "{{ item.username }}"
+          groups: wheel
+          append: yes
+          shell: /bin/bash
+          password: "{{ user_password | password_hash('sha512', '123456abcdef') }}"
+        when: 
+          - item.uid > 1000
+          - item.uid < 2000
+        loop: "{{ users }}"
+      - name: upload SSH keys
+        authorized_key:
+          user: "{{ item.username }}"
+          state: present
+          key: "{{ lookup('file', '/home/automation/.ssh/id_rsa.pub') }}"
+        when: 
+          - item.uid > 1000
+          - item.uid < 2000
+        loop: "{{ users }}"
+      - name: create user .ssh directory
+        file:
+          path: /home/{{ item.username }}/.ssh
+          state: directory  
+          mode: 0700
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+        when: 
+          - item.uid > 1000
+          - item.uid < 2000
+        loop: "{{ users }}"
+      - name: copy pub key to user directory
+        template:
+          src: pub_key.j2
+          dest: /home/{{ item.username }}/.ssh/id_rsa.pub
+          mode: 0644
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+        when: 
+         - item.uid > 1000
+         - item.uid < 2000
+        loop: "{{ users }}"
+      - name: copy priv key to user directory
+        copy:
+          src: priv_key
+          dest: /home/{{ item.username }}/.ssh/id_rsa
+          mode: 0600
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+        when: 
+         - item.uid > 1000
+         - item.uid < 2000
+        loop: "{{ users }}"
+
+  - name: task 6 users and groups database
+    hosts: database
+    become: yes
+    vars_files: 
+      - vars/user_list.yml
+      - secret.yml
+    tasks: 
+      - name: create groups
+        group: 
+          name: "{{ item.username }}"
+          state: present
+        when:
+          - item.uid > 2000
+        loop: "{{ users }}"
+      - name: create users
+        user:
+          name: "{{ item.username }}"
+          uid: "{{ item.uid }}"
+          group: "{{ item.username }}"
+          groups: wheel
+          append: yes
+          shell: /bin/bash
+          password: "{{ user_password | password_hash('sha512', '123456abcdef') }}"
+        when: 
+          - item.uid > 2000
+        loop: "{{ users }}"
+      - name: upload SSH keys
+        authorized_key:
+          user: "{{ item.username }}"
+          state: present
+          key: "{{ lookup('file', '/home/automation/.ssh/id_rsa.pub') }}"
+        when: 
+          - item.uid > 2000
+        loop: "{{ users }}"
+      - name: create user .ssh directory
+        file:
+          path: /home/{{ item.username }}/.ssh
+          state: directory  
+          mode: 0700
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+        when: 
+          - item.uid > 2000
+        loop: "{{ users }}"
+      - name: copy pub key to user directory
+        template:
+          src: pub_key.j2
+          dest: /home/{{ item.username }}/.ssh/id_rsa.pub
+          mode: 0644
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+        when: 
+         - item.uid > 2000
+        loop: "{{ users }}"
+      - name: copy priv key to user directory
+        copy:
+          src: priv_key
+          dest: /home/{{ item.username }}/.ssh/id_rsa
+          mode: 0600
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+        when: 
+         - item.uid > 2000
+        loop: "{{ users }}"
+
+

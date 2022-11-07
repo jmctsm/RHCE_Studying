@@ -1,0 +1,80 @@
+---
+# tasks file for sample-mysql
+- name: setup primary partition on /dev/sdb
+  parted:
+    number: 1
+    device: /dev/sdb
+    state: present
+    part_end: 800MiB
+- name: setup vg vg_database
+  lvg: 
+    vg: vg_database
+    pvs: /dev/sdb1
+- name: setup lv_mysql 
+  lvol: 
+    vg: vg_database
+    lv: lv_mysql
+    size: 512m
+- name: format lv_mysql as xfs
+  filesystem: 
+    fstype: xfs
+    dev: /dev/mapper/vg_database-lv_mysql
+- name: permanently mount lv_mysql to /mnt/mysql_backups
+  mount: 
+    path: /mnt/mysql_backups
+    state: mounted
+    src: /dev/mapper/vg_database-lv_mysql
+    fstype: xfs
+- name: install mysql-community-server
+  yum:
+    name: 
+      - mysql-server
+      - python3-PyMySQL
+    state: latest
+- name: open firewall for service mysql
+  firewalld:
+    service: mysql
+    permanent: yes
+    immediate: yes
+    state: enabled
+- name: open firewall for tcp port 3306
+  firewalld:
+    port: 3306/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+- name: start mysqld
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+- name: set my sql root password to database_password
+  block: 
+    - mysql_user: 
+        login_host: 'localhost'
+        login_user: 'root'
+        login_password: ''
+        name: 'root'
+        password: "{{ database_password }}"
+        state: present
+  rescue: 
+    - mysql_user:
+        login_host: 'localhost'
+        login_user: 'root'
+        login_password: "{{ database_password }}"
+        name: 'root'
+        password: "{{ database_password }}"
+        state: present
+- name: start and enable mysqld
+  service: 
+   name: mysqld
+   state: restarted
+   enabled: yes
+- name: copy config template to   
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cmf
+    owner: root
+    group: root
+    mode: 644
+  notify: restart mysql 

@@ -1,0 +1,22 @@
+--- 
+  - name: task 18 create and use templates to create customised configuration files
+    hosts: database
+    become: yes
+    tasks:
+      - name: only run on database servers
+        block:  
+          - name: copy template file to servers
+            template: 
+              src: server_list.j2
+              dest: /etc/server_list.txt
+              owner: automation
+              mode: 0600
+              setype: net_conf_t
+          - name: cat files created
+            shell: 
+              cmd: cat /etc/server_list.txt
+            register: cat_output
+          - name: print cat output
+            debug:
+              var: cat_output
+        when: ansible_facts['nodename'] in groups['database']

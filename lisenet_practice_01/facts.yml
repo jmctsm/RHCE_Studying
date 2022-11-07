@@ -1,0 +1,21 @@
+---
+  - name: task 15 work with ansible facts
+    hosts: database
+    become: yes
+    tasks:
+      - name: create facts directory
+        file: 
+          path: /etc/ansible/facts.d
+          state: directory
+      - name: upload facts file
+        copy: 
+          src: custom.fact
+          dest: /etc/ansible/facts.d/custom.fact
+      - name: run setup to gather facts
+        setup:
+      - name: print custom facts
+        debug: 
+          var: ansible_local.custom.sample_exam
+      - name: print custom facts
+        debug: 
+          var: ansible_facts['ansible_local']['custom']['sample_exam']
