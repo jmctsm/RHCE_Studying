@@ -1,0 +1,42 @@
+---
+  - name: task 15 create logical volume
+    hosts: all
+    become: yes
+    tasks:
+      - name: if have vms and vms is greater than 1G
+        lvol: 
+          vg: vms
+          lv: lvs2
+          size: 1.5g
+        when: 
+          - "'vms' in ansible_facts['lvm']['vgs'].keys() | list"
+          - ansible_facts['lvm']['vgs']['vms']['size_g'] | int >= 1
+      - name: if have vms and vms is less than 1 G
+        block: 
+          - name: print message
+            debug: 
+              msg: no sufficient space available
+          - name: create 1G lvs2
+            lvol: 
+              vg: vms
+              lv: lvs2
+              size: 1g
+        when: 
+          - "'vms' in ansible_facts['lvm']['vgs'].keys() | list"
+          - ansible_facts['lvm']['vgs']['vms']['size_g'] | int < 1
+      - name: if no vms
+        debug: 
+          msg: No Volume group exist
+        when: not 'vms' in ansible_facts['lvm']['vgs'].keys() | list
+      - name: format lvs2 with xfs
+        filesystem: 
+          fstype: xfs
+          dev: /dev/mapper/vms-lvs2
+        when: "'lvs2' in ansible_facts['lvm']['lvs'].keys() | list"
+      - name: mount lvs2 on /data permanently
+        mount: 
+          path: /data
+          src: /dev/mapper/vms-lvs2
+          fstype: xfs
+          state: mounted
+        when: "'lvs2' in ansible_facts['lvm']['lvs'].keys() | list"

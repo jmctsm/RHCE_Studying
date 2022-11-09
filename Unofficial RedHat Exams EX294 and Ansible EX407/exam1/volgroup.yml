@@ -1,0 +1,22 @@
+---
+  - name: task 14 create volume groups
+    hosts: dev,qual,balancers
+    become: yes
+    tasks: 
+      - name: create partitions
+        parted: 
+          number: 1
+          device: /dev/sdb
+          state: present
+          flags: [ lvm ]
+          part_end: 50%
+      - name: create vg for dev and qual
+        lvg: 
+          vg: vms
+          pvs: /dev/sdb1
+        when: inventory_hostname in groups['dev'] or inventory_hostname in groups['qual']
+      - name: create vg for balancers
+        lvg: 
+          vg: vms
+          pvs: /dev/sdb1
+        when: inventory_hostname in groups['balancers']

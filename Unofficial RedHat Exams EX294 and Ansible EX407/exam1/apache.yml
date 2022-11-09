@@ -1,0 +1,6 @@
+---
+  - name: task 4 ansible roles
+    hosts: webservers
+    become: yes
+    roles: 
+      - apache

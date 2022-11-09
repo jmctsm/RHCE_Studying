@@ -1,0 +1,29 @@
+---
+  - name: task 25 prompt
+    hosts: all
+    become: yes
+    vars_prompt: 
+      - name: username
+        prompt: what is the username
+        private: no
+      - name: password
+        prompt: what is the password
+        private: yes
+        confirm: yes
+    tasks: 
+      - name: create networking group as needed
+        group: 
+          name: networking
+          state: present
+      - name: create sudo for networking
+        copy: 
+          content: "%networking ALL = NOPASSWD: /usr/bin/nmcli\n"
+          dest: /etc/sudoers.d/networking
+          validate: visudo -cf %s
+      - name: create user
+        user: 
+          name: "{{ username }}"
+          password: "{{ password | password_hash('sha512', 'supersalt') }}"
+          groups: networking
+          append: yes
+

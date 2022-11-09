@@ -1,0 +1,12 @@
+---
+  - name: Task 04 Group Differentiation
+    hosts: all
+    become: yes
+    tasks: 
+      - name: create motd based on group membership
+        copy: 
+          content: "{{ motd }}"
+          dest: /etc/motd
+          owner: root
+          group: root
+          mode: 0644

@@ -1,0 +1,27 @@
+---
+  - name: task 23 extending facts
+    hosts: all
+    become: yes
+    tasks: 
+      - name: create directory
+        file: 
+          path: "{{ item }}"
+          state: directory
+          owner: root
+          group: root
+          mode: 0755
+        loop: 
+          - /etc/ansible/
+          - /etc/ansible/facts.d/
+      - name: copy script to server
+        copy: 
+          src: files/usage.fact
+          dest: /etc/ansible/facts.d/usage.fact
+          mode: 0755
+          owner: root
+          group: root
+      - name: rerun setup
+        setup: 
+      - name: print ansible_local
+        debug: 
+          var: ansible_facts['ansible_local']

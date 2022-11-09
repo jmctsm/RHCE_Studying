@@ -1,0 +1,16 @@
+---
+  - name: task 19 system roles
+    hosts: all
+    become: yes
+    vars:
+      timesync_ntp_servers:
+        - hostname: 1.pl.pool.ntp.org
+          iburst: yes
+        - hostname: 2.pl.pool.ntp.org
+          iburst: yes
+    roles:
+      - rhel-system-roles.timesync
+    tasks: 
+      - name: set timezone
+        timezone:
+          name: UTC

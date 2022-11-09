@@ -1,0 +1,17 @@
+---
+  - name: task 8 YUM repositories
+    hosts: database
+    become: yes
+    tasks: 
+      - name: import GPG key
+        rpm_key: 
+          key: https://repo.mysql.com/RPM-GPG-KEY-mysql
+          state: present
+      - name: create new mysql repo
+        yum_repository: 
+          name: mysql57-community
+          enabled: yes
+          gpgcheck: yes
+          baseurl: http://repo.mysql.com/yum/mysql-5.7-community/el/6/$basearch
+          gpgkey: https://repo.mysql.com/RPM-GPG-KEY-mysql
+          description: MySQL 5.7 Community Server

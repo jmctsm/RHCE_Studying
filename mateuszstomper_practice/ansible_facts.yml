@@ -1,0 +1,21 @@
+---
+  - name: task 5 Ansible Facts
+    hosts: proxy
+    become: yes
+    tasks: 
+      - name: create local facts directory
+        file: 
+          path: /etc/ansible/facts.d
+          state: directory
+      - name: copy facts files to server
+        copy: 
+          src: environment.fact
+          dest: /etc/ansible/facts.d/environment.fact
+      - name: rerun setup
+        setup: 
+      - name: print local variable
+        debug: 
+          var: ansible_local.environment.application
+      - name: print local variable another way
+        debug: 
+          var: ansible_facts['ansible_local']['environment']['application']

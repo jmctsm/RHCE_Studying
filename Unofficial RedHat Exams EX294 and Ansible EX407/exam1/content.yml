@@ -1,0 +1,36 @@
+---
+  - name: task 16 file content
+    hosts: all
+    become: yes
+    tasks: 
+      - name: Deploy only to loadbalancers
+        block:
+          - name: install selinux tools
+            yum: 
+              name: policycoreutils-python-utils
+              state: latest 
+          - name: create directory
+            file:
+              path: /dav/
+              state: directory
+              mode: 02775
+          - name: create devops group
+            group: 
+              name: devops
+              state: present
+          - name: deploy template
+            template: 
+              src: templates/hosts_fqdn.j2
+              dest: /dav/nodes.txt
+              group: devops
+              mode: 02775
+              setype: samba_share_t
+          - name: set file selinux permission
+            sefcontext:
+              target: '/dav/nodes.txt'
+              setype: samba_share_t
+              ftype: f
+              state: present
+          - name: set selinux values
+            command: restorecon -irv /dav/notes.txt
+        when: inventory_hostname in groups['balancers']

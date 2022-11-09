@@ -1,0 +1,38 @@
+---
+  - name: task 7
+    hosts: prod,dev,qual
+    become: yes
+    vars_files: 
+      - vars/userslist.yml
+      - lock.yml
+    tasks: 
+      - name: create devops group
+        group:
+          name: "{{ item }}"
+          state: present
+        when: | 
+          ( item == 'devops' and ( inventory_hostname in groups['dev'] or inventory_hostname in groups['qual'] ) )
+          or
+          ( item == 'mgrops' and  inventory_hostname in groups['prod'] )
+        loop: [ 'devops', 'mgrops' ]
+      - name: create developer users
+        user: 
+          name: "{{ item.username }}"
+          groups: devops
+          append: yes
+          password: "{{ dev_pass | password_hash('sha512', 'devsalt') }}"
+        when: 
+          - item.job == "developer"
+          - ( inventory_hostname in groups['dev'] ) or ( inventory_hostname in groups['qual'] ) 
+        loop: "{{ users }}"
+      - name: create manager users
+        user: 
+          name: "{{ item.username }}"
+          groups: mgrops
+          append: yes
+          password: "{{ mgr_pass | password_hash('sha512', 'devsalt') }}"
+        when: 
+          - item.job == "manager"
+          - inventory_hostname in groups['prod']  
+        loop: "{{ users }}"
+               

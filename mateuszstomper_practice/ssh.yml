@@ -1,0 +1,60 @@
+---
+  - name: task 20 advanced SSH
+    hosts: webservers
+    become: yes
+    serial: 1
+    vars:
+      selinux_policy: targeted
+      selinux_state: enforcing
+      selinux_ports:
+        - { ports: '20022', proto: 'tcp', setype: 'ssh_port_t', state: 'present' }
+
+    # Prepare the prerequisites required for this playbook
+    tasks:
+      - name: install firewalld if needed
+        yum: 
+          name: firewalld
+          state: latest
+      - name: execute the role and catch errors
+        block:
+          - name: Include selinux role
+            include_role:
+              name: rhel-system-roles.selinux
+        rescue:
+          # Fail if failed for a different reason than selinux_reboot_required.
+          - name: handle errors
+            fail:
+              msg: "role failed"
+            when: not selinux_reboot_required
+
+          - name: restart managed host
+            reboot:
+
+          - name: wait for managed host to come back
+            wait_for_connection:
+              delay: 10
+              timeout: 300
+
+          - name: reapply the role
+            include_role:
+              name: rhel-system-roles.selinux   
+      - name: make sure that the firewall is up and running
+        service:  
+          name: firewalld
+          state: started
+          enabled: yes
+      - name: open firewall for 20022
+        firewalld: 
+          port: 20022/tcp
+          permanent: yes
+          immediate: yes
+          state: enabled
+      - name: setup config to use 20022 port for SSH
+        lineinfile: 
+          line: Port {{ item }}
+          path: /etc/ssh/sshd_config
+        loop: [ 22, 20022 ]
+    post_tasks:
+      - name: reboot servers
+        reboot:
+          test_command: whoami

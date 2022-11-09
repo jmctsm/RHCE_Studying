@@ -1,0 +1,12 @@
+---
+  - name: task 10 manage file contents
+    hosts: all
+    become: yes
+    tasks: 
+      - name: replace /etc/issue.net
+        template: 
+          src: templates/issue.net.j2
+          dest: /etc/issue.net
+          owner: root 
+          group: root
+          mode: 0644

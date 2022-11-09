@@ -1,0 +1,36 @@
+---
+  - name: exercise 3 Archiving
+    hosts: all
+    become: yes
+    tasks: 
+      - name: create directory on remote host
+        file:
+          path: /backup
+          owner: automation
+          group: automation
+          mode: 0755
+          state: directory
+      - name: create directly on local host
+        file: 
+          path: /backup
+          owner: automation
+          group: automation
+          mode: 0755
+          state: directory
+        delegate_to: localhost
+      - name: create the archive
+        archive: 
+          path: /etc
+          dest: /backup/configuration.gz
+          format: gz
+          group: automation
+          owner: automation
+          mode: 0660
+      - name: fetch files from servers
+        fetch: 
+          src: /backup/configuration.gz
+          dest: /backup/{{ inventory_hostname }}-configuration.gz
+          flat: yes
+          owner: automation
+          group: automation
+          mode: 0660

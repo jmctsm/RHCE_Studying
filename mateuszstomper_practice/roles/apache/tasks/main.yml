@@ -1,0 +1,34 @@
+---
+# tasks file for apache
+- name: install packages
+  yum: 
+    name: 
+      - httpd
+      - firewalld
+    state: latest
+- name: start services
+  service: 
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: [ httpd, firewalld ]
+- name: allow services through firewall
+  firewalld: 
+    service: "{{ item }}"
+    state: enabled
+    permanent: yes
+    immediate: yes
+  loop: [http, https]
+
+- name: allow ports through firewall
+  firewalld: 
+    port: "{{ item }}"
+    state: enabled
+    permanent: yes
+    immediate: yes
+  loop: [80/tcp, 443/tcp]
+
+- name: create index 
+  copy: 
+    content: "Welcome, you have connected to {{ ansible_facts['nodename'] }}\n"
+    dest: /var/www/html/index.html

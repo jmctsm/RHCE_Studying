@@ -1,0 +1,27 @@
+---
+  - name: task 9 create specs report file
+    hosts: all
+    become: yes
+    tasks: 
+      - set_fact:
+          disks_list_all: "{{ ansible_facts['devices'].keys() | list }}"
+      - set_fact:
+          disk_one_size: "{{ ansible_facts['devices'][item]['size'] }}"
+        when: item == "sda"
+        loop: "{{ disks_list_all }}"
+      - set_fact: 
+          disk_two_size: "{{ ansible_facts['devices'][item]['size'] }}"
+        when: item == "sdb"
+        loop: "{{ disks_list_all }}"
+      - set_fact:
+          disk_three_size: "{{ ansible_facts['devices'][item]['size'] }}"
+        when: item == "sdc"
+        loop: "{{ disks_list_all }}"
+      - set_fact: 
+          disk_four_size: "{{ ansible_facts['devices'][item]['size'] }}"
+        when: item == "sdd"
+        loop: "{{ disks_list_all }}"
+      - name: push template to all server
+        template:
+          src: templates/specs.j2
+          dest: /root/specs_report.txt

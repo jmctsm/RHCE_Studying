@@ -1,0 +1,24 @@
+---
+  - name: task 11 software packages
+    hosts: all 
+    become: yes
+    tasks: 
+      - name: install tmux on all servers
+        yum: 
+          name: tmux
+          state: latest
+        when: inventory_hostname in groups['all']
+      - name: install database needed packages
+        yum: 
+          name: 
+            - tcpdump
+            - lsof
+          state: latest
+        when: inventory_hostname in groups['database']
+      - name: install proxy needed packages
+        yum: 
+          name: 
+            - mailx
+            - lsof
+          state: latest
+        when: inventory_hostname in groups['proxy']

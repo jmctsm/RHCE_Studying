@@ -1,0 +1,45 @@
+---
+  - name: task 10 user accounts
+    hosts: all
+    become: yes
+    vars_files: 
+      - vars/users.yml
+      - vars/regular_users.yml
+    tasks: 
+      - name: create users for webservers
+        user: 
+          name: "{{ item.username }}"
+          uid: "{{ item.uid }}"
+          state: present
+          groups: wheel
+          append: yes
+          password: "{{ user_password | password_hash('sha512', 'mysecretsalt') }}"
+          shell: /bin/bash
+        when: 
+          - item.uid >= 2000
+          - item.uid < 3000
+          - inventory_hostname in groups['webservers']
+        loop: "{{ users }}"
+      - name: create users for database
+        user: 
+          name: "{{ item.username }}"
+          uid: "{{ item.uid }}"
+          state: present
+          groups: wheel
+          append: yes
+          password: "{{ user_password | password_hash('sha512', 'mysecretsalt') }}"
+          shell: /bin/bash
+        when: 
+          - item.uid >= 3000
+          - item.uid < 4000
+          - inventory_hostname in groups['database']
+        loop: "{{ users }}"
+      - name: upload ssh key file
+        authorized_key: 
+          key: "{{ lookup('file', '/home/automation/.ssh/id_rsa.pub') }}"
+          user: "{{ item.username }}"
+        when: |
+          (item.uid >= 2000 and item.uid < 3000 and inventory_hostname in groups['webservers']) 
+          or
+          (item.uid >= 3000 and item.uid < 4000 and inventory_hostname in groups['database'])
+        loop: "{{ users }}"

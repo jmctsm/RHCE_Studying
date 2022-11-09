@@ -1,0 +1,9 @@
+network_connections:
+  # Specify the dummy profile
+  - name: Internet
+    state: up
+    type: ethernet
+    interface_name: ens192
+    ip:
+      address:
+        - "192.168.57.101/24"

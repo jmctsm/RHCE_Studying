@@ -1,0 +1,17 @@
+---
+  - name: task 14 system target
+    hosts: all
+    become: yes
+    tasks: 
+      - name: set target and reboot if necessary
+        file: 
+          dest: /etc/systemd/system/default.target
+          src: /usr/lib/systemd/system/multi-user.target
+          owner: root
+          group: root
+          state: link
+        notify: restart server
+    handlers:
+      - name: restart server
+        reboot:
+          test_command: whoami

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+USERINFO="-e ansible_user=root -e ansible_password=password"
+
+ansible all -m ping $USERINFO
+
+# create ssh key pair directory
+ansible localhost -m file -a "path=/home/automation/.ssh/ state=directory owner=automation group=automation" 
+# create keypair on localhost
+ansible localhost -m openssh_keypair -a "force=yes path=/home/automation/.ssh/id_rsa state=present owner=automation group=automation"
+# create automation on all hosts in inventory
+ansible all -m user -a "name=automation state=present" $USERINFO
+# set password for automation to devops
+ansible all -m shell -a "echo 'devops' | passwd --stdin automation" $USERINFO
+# push keypair to all hosts
+ansible all -m authorized_key -a "user=automation key=\"{{ lookup('file', '/home/automation/.ssh/id_rsa.pub') }}\" state=present" $USERINFO
+# setup sudo on all hosts for automation
+ansible all -m copy -a "content='automation ALL=(ALL) NOPASSWD:ALL' dest=/etc/sudoers.d/automation validate='visudo -cf %s'" $USERINFO
+
+ansible all -m ping -e ansible_user=automation
+

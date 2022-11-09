@@ -1,0 +1,13 @@
+---
+  - name: task 22 extending facts
+    hosts: all
+    become: yes
+    tasks: 
+      - name: gather all facts
+        setup: 
+      - name: get package facts for database
+        package_facts: 
+        when: inventory_hostname in groups['database']
+      - name: print to console all ansible facts
+        debug: 
+          var: ansible_facts

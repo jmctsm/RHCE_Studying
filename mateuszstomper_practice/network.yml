@@ -1,0 +1,6 @@
+---
+  - name: task 21 networking
+    hosts: managed1.example.com,managed4.example.com
+    become: yes
+    roles:
+      - rhel-system-roles.network

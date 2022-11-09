@@ -1,0 +1,44 @@
+---
+  - name: task 13 swap
+    hosts: database
+    become: yes
+    tasks:
+      - name: install tools
+        yum: 
+          name: lvm2
+          state: latest
+
+      - name: create primary partition
+        parted: 
+          device: /dev/sdb
+          number: 1
+          label: gpt
+          state: present
+          part_start: 0%
+          part_end: 1100MB
+      - name: create volume group
+        lvg: 
+          pvs: /dev/sdb1
+          vg: swap
+      - name: create logical volume
+        lvol:
+          lv: swap
+          size: 100%VG
+          vg: swap
+      - name: create filesystem
+        filesystem: 
+          dev: /dev/swap/swap
+          fstype: swap
+      - name: mount on boot
+        lineinfile: 
+          line: "/dev/swap/swap swap swap defaults 0 0"
+          path: /etc/fstab
+      - name: check if mounted
+        shell: 
+          cmd: "lsblk -s | grep swap-swap"
+        changed_when: false
+        register: mounts
+      - name: mount is not mounted
+        shell: 
+          cmd: swapon /dev/swap/swap
+        when: "'[SWAP]' not in mounts.stdout"

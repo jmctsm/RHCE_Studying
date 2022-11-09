@@ -1,0 +1,16 @@
+[dev]
+ansible1.example.com ansible_host=192.168.43.201
+
+[qual]
+ansible2.example.com ansible_host=192.168.43.202
+
+[balancers]
+ansible3.example.com ansible_host=192.168.43.203
+
+[webservers]
+ansible4.example.com ansible_host=192.168.43.204
+ansible5.example.com ansible_host=192.168.43.205
+
+[prod:children]
+balancers
+webservers

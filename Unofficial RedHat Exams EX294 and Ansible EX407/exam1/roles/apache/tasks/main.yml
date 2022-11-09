@@ -1,0 +1,31 @@
+---
+# tasks file for apache
+- name: install httpd and firewalld
+  yum: 
+    name: [httpd, firewalld]
+    state: latest
+- name: ensure that user apache is created
+  user: 
+    name: apache
+    state: present
+
+- name: enable httpd and firewalld
+  service: 
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: [ httpd, firewalld ]
+
+- name: allow 80 and 443 through firewall
+  firewalld: 
+    port: "{{ item }}"
+    state: enabled
+    permanent: yes
+    immediate: yes
+  loop: [ 80/tcp, 443/tcp ]
+
+- name: deploy template to webserver
+  template:  
+    src: index.html.j2
+    dest: /var/www/html/index.html
+

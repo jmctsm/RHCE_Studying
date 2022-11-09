@@ -1,0 +1,14 @@
+[proxy]
+managed1.example.com
+
+[webservers]
+managed2.example.com
+managed3.example.com
+
+[database]
+managed3.example.com
+managed4.example.com
+
+[public:children]
+proxy
+webservers

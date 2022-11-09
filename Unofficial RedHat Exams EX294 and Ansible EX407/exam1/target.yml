@@ -1,0 +1,25 @@
+---
+  - name: task 13 change system default boot target
+    hosts: all
+    become: yes
+    tasks: 
+      - name: set to multi-user.target
+        file: 
+          src: /usr/lib/systemd/system/multi-user.target
+          dest: /etc/systemd/system/default.target
+          state: link
+          owner: root
+          group: root
+        notify: restart server
+    post_tasks:
+      - name: get target value
+        shell: 
+          cmd: systemctl get-default
+        register: default_output
+      - name: show target
+        debug: 
+          msg: "{{ default_output.stdout }}"      
+    handlers: 
+      - name: restart server
+        reboot: 
+          test_command: whoami

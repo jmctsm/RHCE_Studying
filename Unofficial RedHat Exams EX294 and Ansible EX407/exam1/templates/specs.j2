@@ -1,0 +1,17 @@
+HOSTNAME= {{ ansible_facts['hostname'] }}
+
+HOST FQDN= {{ ansible_facts['fqdn'] }} or {{ ansible_facts['nodename'] }}
+
+OS= {{ ansible_facts['distribution'] }}
+
+BIOS VERSION= {{ ansible_facts['bios_version'] }}
+
+TOTAL MEMORY IN MB= {{ ansible_facts['memory_mb']['real']['total'] }}
+
+SDA DISK SIZE= {{ disk_one_size | default('NONE') }}
+
+SDB DISK SIZE= {{ disk_two_size | default('NONE') }}
+
+SDC DISK SIZE= {{ disk_three_size | default('NONE') }}
+
+SDD DISK SIZE= {{ disk_four_size | default('NONE') }}

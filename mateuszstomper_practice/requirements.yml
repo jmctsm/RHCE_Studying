@@ -1,0 +1,5 @@
+---
+  - src: https://github.com/geerlingguy/ansible-role-git
+    name: git
+    scm: git
+    version: 3.0.0

@@ -1,0 +1,19 @@
+---
+  - name: task 12 automating scheduled tasks
+    hosts: all
+    become: yes
+    tasks: 
+      - name: restart rsyslog for dev and qual
+        cron: 
+          name: restart rsyslog
+          minute: 0
+          hour: 15
+          job: 'systemctl restart rsyslog'
+        when: inventory_hostname in groups['dev'] or inventory_hostname in groups['qual']
+      - name: restart rsyslog for prod
+        cron: 
+          name: restart rsyslog
+          minute: 0
+          hour: 23
+          job: 'systemctl restart rsyslog'
+        when: inventory_hostname in groups['prod']
