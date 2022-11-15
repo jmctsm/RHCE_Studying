@@ -1,0 +1,17 @@
+---
+  - name: stop and uninstall httpd and vsftpd
+    hosts: all
+    tasks:
+      - name: stop httpd and vsftpd
+        service: 
+          name: "{{ item }}"
+          state: stopped
+          enabled: no
+        loop: [ httpd, vsftpd ]
+        ignore_errors: yes
+      - name: uninstall httpd and vsftpd
+        yum: 
+          name:
+            - httpd
+            - vsftpd
+          state: absent

@@ -1,0 +1,27 @@
+---
+  - name: install and configure httpd
+    hosts: ansible2
+    tasks: 
+      - name: install httpd and firewalld 
+        yum: 
+          name: 
+            - httpd
+            - firewalld
+          state: latest
+      - name: start firewalld and httpd
+        service: 
+          name: "{{ item }}"
+          state: started
+          enabled: yes
+        loop: [ firewalld, httpd ]
+      - name: enable http on firewalld
+        firewalld: 
+          service: http
+          state: enabled
+          permanent: yes
+          immediate: yes
+      - name: create index.html
+        copy:
+          content: "Welcome to {{ ansible_facts['nodename'] }}\n" 
+          dest: /var/www/html/index.html
+        

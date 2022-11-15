@@ -1,0 +1,23 @@
+---
+  - name: remove httpd
+    hosts: ansible2
+    tasks: 
+      - name: remove indext.html file
+        file: 
+          path: /var/www/html/index.html
+          state: absent
+      - name: remove firewalld configuration
+        firewalld: 
+          service: httpd
+          state: disabled
+          permanent: yes
+          immediate: yes
+      - name: stop httpd (not removing firewalld)
+        service: 
+          name: httpd
+          state: stopped
+          enabled: yes
+      - name: removing httpd (not removing firewalld)
+        yum: 
+          name: httpd
+          state: absent
