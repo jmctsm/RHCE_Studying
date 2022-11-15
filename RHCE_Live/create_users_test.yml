@@ -1,0 +1,29 @@
+---
+  - name: testing append vs no append
+    hosts: all
+    tasks:
+      - name: create user with no append
+        user: 
+          name: kelly
+          state: present
+          groups: wheel
+      - name: create user with append
+        user: 
+          name: emily
+          state: present
+          groups: wheel
+          append: yes
+      - name: get id of kelly
+        shell: 
+          cmd: id kelly
+        register: kelly_id
+      - name: get id of emily
+        shell: 
+          cmd: id emily
+        register: emily_id
+      - name: show id of kelly
+        debug: 
+          var: kelly_id
+      - name: show id of emily
+        debug: 
+          var: emily_id

@@ -1,0 +1,7 @@
+{% for device in ansible_facts['devices'].keys() | list %}
+{% if ansible_facts['devices'][device]['partitions'] %}
+{% for partition in ansible_facts['devices'][device]['partitions'].keys() | list %}
+{{ ansible_facts['devices'][device][partition]['size'] }}
+{% endfor %}
+{% endif %}
+{% endfor %}

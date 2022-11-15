@@ -1,0 +1,33 @@
+---
+  - name: create directory for all hosts for custom facts
+    hosts: all
+    gather_facts: no
+    tasks: 
+      - file: 
+          path: /etc/ansible/facts.d
+          state: directory
+  
+  - name: create ansible1 custom facts
+    hosts: ansible1
+    gather_facts: no
+    tasks: 
+      - copy:
+          content: "[setting]\ntype=production\n"
+          dest: /etc/ansible/facts.d/homework2.fact
+  
+  - name: create ansible2 custom facts
+    hosts: ansible2
+    gather_facts: no
+    tasks: 
+      - copy:
+          content: "[setting]\ntype=testing\n"
+          dest: /etc/ansible/facts.d/homework2.fact
+
+  - name: homework2
+    hosts: all
+    tasks: 
+      - name: install vsftpd
+        yum:  
+          name: vsftpd
+          state: latest
+        when: ansible_facts['ansible_local']['homework2']['setting']['type'] == "production"

@@ -1,0 +1,15 @@
+# Partitions don't have an "available" size.  I assumed you meant available size
+# in the mounted file systems, but maybe you meant total size of the partition
+# loop_control is just for nicer output
+#   
+# Filename: filesystems.yml
+---
+  - name: Process mounted filesystems
+    hosts: all
+    tasks:
+      - name: Process filesystems
+        debug:
+          msg: "{{ item.device }} has {{ item.size_available }} available"
+        loop: "{{ ansible_mounts }}"
+        loop_control:
+          label: "{{ item.mount }}"

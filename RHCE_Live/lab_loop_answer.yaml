@@ -1,0 +1,12 @@
+---
+  - name: lab loop solution
+    hosts: all
+    tasks: 
+      - set_fact: 
+          found_devices: "{{ ansible_facts['devices'].keys() | list }}"
+      - set_fact: 
+          found_partitions: "{{ ansible_facts['devices'][item]['partitions'].keys() | list }}"
+        when: ansible_facts['devices'][item]['partitions']
+        loop: "{{ found_devices }}"
+      - debug: 
+          var:  ansible_facts['devices'][

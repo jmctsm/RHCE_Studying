@@ -1,0 +1,19 @@
+# write a playbook that prints you have a second disk if a second disk is found and you have no second disk if no second disk was found
+
+---
+  - name: lab 
+    hosts: all
+    tasks: 
+      - debug: 
+          msg: You have a second disk
+        when: ansible_facts['devices'].keys() | list is search("b")
+      - debug: 
+          msg: You have no second disk
+        when: not ansible_facts['devices'].keys() | list is search("b")
+      - debug: 
+          msg: You have a second disk
+        when: "'sdb' in ansible_facts['devices']"
+      - debug:
+          msg: You have no second disk
+        when: not 'sdb' in ansible_facts['devices']
+

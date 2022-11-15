@@ -1,0 +1,17 @@
+---
+  - name: write a playbook that finds all partitions on your system and for each of these partitions prints the available size
+    hosts: all
+    tasks: 
+      - debug: 
+          var: ansible_facts['devices'].keys() | list
+      - name: create file using template
+        template: 
+          src: partitions.j2
+          dest: /home/ansible/partitions.txt
+        delegate_to: 
+      - name: cat the file
+        shell:
+          cmd: cat /home/ansible/partitions.txt
+        register: cat_output
+      - debug: 
+          var: cat_output

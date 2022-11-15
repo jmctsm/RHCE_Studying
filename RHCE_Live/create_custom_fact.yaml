@@ -1,0 +1,28 @@
+---
+  - name: create custom facts location
+    hosts: all
+    tasks: 
+      - file: 
+          path: /etc/ansible/facts.d/
+          state: directory
+
+
+  - name: create custom facts for ansible 1
+    hosts: ansible1
+    tasks: 
+      - copy:
+          content: "[ansible1]\ntype=production\n"
+          dest: /etc/ansible/facts.d/custom.fact
+ 
+  - name: create custom facts for ansible 2
+    hosts: ansible2
+    tasks: 
+      - copy: 
+          content: "[ansible2]\ntype=testing\n"
+          dest: /etc/ansible/facts.d/custom.fact
+
+  - name: show custom facts
+    hosts: all
+    tasks: 
+      - debug:
+          var: ansible_facts['ansible_local']['custom']
