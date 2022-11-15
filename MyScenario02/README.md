@@ -1,10 +1,10 @@
-uses 7 machines
-	a. 1 controller
+00. uses 7 machines
+    a. 1 controller
 	b. 6 servers
-		1. All machines are minimally installed
-		2. only controller is registered with RedHat
-		3. install vim on controller
-		4. three nics and three hard drives per machine
+       1. All machines are minimally installed
+	   2. only controller is registered with RedHat
+	   3. install vim on controller
+	   4. three nics and three hard drives per machine
 	c. Root user on all machines
 	d. no otheuseraddr users on any machine 
 	
