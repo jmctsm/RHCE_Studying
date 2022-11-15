@@ -8,17 +8,17 @@
     c. Root user on all machines
     d. no otheuseraddr users on any machine 
 	
-1. install ansible on controller
+01. install ansible on controller
    a. use 2.9
-2. create user ansible on controller
-3. set password for ansible on controller
-4. allow user ansible on controller to not have to use a password for sudo 
+02. create user ansible on controller
+03. set password for ansible on controller
+04. allow user ansible on controller to not have to use a password for sudo 
    a. do not add to default file; add a new file to additional default directory
-5. create ssh keys for user ansible on controller
-6. create all playbooks in /home/ansible/playbooks
-7. create all scripts in /home/ansible/scripts
-8. create all templates in /home/ansible/templates
-9. variables are not to be kept in playbooks
+05. create ssh keys for user ansible on controller
+06. create all playbooks in /home/ansible/playbooks
+07. create all scripts in /home/ansible/scripts
+08. create all templates in /home/ansible/templates
+09. variables are not to be kept in playbooks
 10. modify file on controller to resolve all servers using short or long hostnames
 11. create ansible configuration file at /home/ansible/
     a. set inventory to /home/ansible/inventory/inventory.ini
