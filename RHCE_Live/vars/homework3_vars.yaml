@@ -1,0 +1,10 @@
+---
+users: 
+  - username: sharon
+    group: admins
+  - username: blair
+    group: admins
+  - username: ashley
+    group: students
+  - username: bob
+    group: students

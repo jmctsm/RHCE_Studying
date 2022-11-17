@@ -1,0 +1,87 @@
+---
+  - name: day 3 homework
+    hosts: localhost
+    become: yes
+    vars_files: 
+      - vars/homework3_vars.yaml
+    tasks:
+      - name: create users
+        user: 
+          name: "{{ item.username }}"
+          password: "{{ 'password' | password_hash('sha512') }}"
+          state: present
+          generate_ssh_key: yes
+          ssh_key_file: .ssh/id_rsa
+          ssh_key_comment: "{{ item.username }}@{{ ansible_facts['nodename'] }}"
+        loop: "{{ users }}"
+      - name: create folder for storing ssh keys
+        file: 
+          path: /home/ansible/ssh_keys/{{ item.username }}/
+          owner: ansible
+          group: ansible
+          mode: 0770
+          recurse: yes
+        loop: "{{ users }}"
+      - name: copy user ssh pub keys to new folder
+        shell: 
+          cmd: 'cat /home/{{ item.username }}/.ssh/id_rsa.pub > /home/ansible/ssh_keys/{{ item.username }}/id_rsa.pub'
+        loop: "{{ users }}"
+      - name: copy user ssh private keys to new folder
+        shell:  
+          cmd: 'cat /home/{{ item.username }}/.ssh/id_rsa > /home/ansible/ssh_keys/{{ item.username }}/id_rsa'
+        loop: "{{ users }}"
+      - name: change owner on all files in ssh_keys
+        shell: 
+          cmd: chown -R ansible:ansible /home/ansible/ssh_keys/
+      
+  - name: continuing the homework
+    hosts: all
+    become: yes
+    vars_files: 
+      - vars/homework3_vars.yaml
+    tasks: 
+      - name: create groups
+        group: 
+          name: "{{ item.group }}"
+          state: present
+        loop: "{{ users }}"
+      - name: create users
+        user:
+          name: "{{ item.username }}"
+          password: "{{ 'password' | password_hash('sha512') }}"
+          state: present
+          groups: "{{ item.group }}"
+          append: yes
+        loop: "{{ users }}"
+      - name: create ssh keys directory
+        file: 
+          path: /home/{{ item.username }}/.ssh
+          state: directory
+        loop: "{{ users }}"
+      - name: copy private keys to user profiles
+        copy: 
+          src: /home/ansible/ssh_keys/{{ item.username }}/id_rsa
+          dest: /home/{{ item.username }}/.ssh/id_rsa
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+          mode: 0600
+        loop: "{{ users }}"
+      - name: copy public keys to user profiles
+        copy:
+          src: /home/ansible/ssh_keys/{{ item.username }}/id_rsa.pub
+          dest: /home/{{ item.username }}/.ssh/id_rsa.pub
+          owner: "{{ item.username }}"
+          group: "{{ item.username }}"
+          mode: 0644
+        loop: "{{ users }}"
+      - name: add authorized keys to where needed
+        authorized_key:
+          user: "{{ item.username }}"
+          key: "{{ lookup('file', '/home/ansible/ssh_keys/{{ item.username }}/id_rsa.pub') }}"
+        loop: "{{ users }}"
+      - name: grant admins group sudo rights
+        copy: 
+          content: '%admins ALL=(ALL) NOPASSWD:ALL' 
+          dest: /etc/sudoers.d/admins
+          validate: visudo -cf %s
+
