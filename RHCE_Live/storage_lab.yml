@@ -1,0 +1,48 @@
+---
+  - name: storage lab
+    hosts: all
+    become: yes
+    vars: 
+      s_d: /dev/sdb
+      vg: vgfiles
+      lv: lvfiles
+      fs: xfs
+    tasks: 
+      - name: fail when no {{ s_d }}
+        fail: 
+          msg: device sdb not present
+        when: not ansible_facts['devices']['sdb'] is defined
+      - name: make partition on {{ s_d }}
+        parted: 
+          device: "{{ s_d }}"
+          number: 1
+          state: present
+      - name: create vgfiles
+        lvg: 
+          vg: "{{ vg }}"
+          pvs: "{{ s_d}}1"
+      - name: rerun setup to get new facts
+        setup:
+      - name: vg bigger than 5 GB, create lvfiles of 6 Gb
+        lvol: 
+          vg: "{{ vg }}"
+          lv: "{{ lv }}"
+          size: 6g
+        when: ansible_facts['lvm']['vgs']['vgfiles']['size_g'] | int >= 5
+      - name: vg smaller than 5 GB, crate lvfiles of 3 Gb
+        lvol: 
+          vg: "{{ vg }}"
+          lv: "{{ lv }}"
+          size: 3g
+        when: ansible_facts['lvm']['vgs']['vgfiles']['size_g'] | int < 5
+      - name: format filesystem with xfs
+        filesystem: 
+          fstype: "{{ fs }}"
+          dev: /dev/mapper/{{ vg }}-{{ lv }}
+      - name: mount to /files
+        mount: 
+          path: /files
+          src: /dev/mapper/{{ vg }}-{{ lv }}
+          fstype: "{{ fs }}"
+          state: mounted
+
